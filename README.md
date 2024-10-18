@@ -1,2 +1,2 @@
 # IIS_projekt
-IIS Projekt - Zvířecí útulek
+IIS Projekt - Umělecká škola
