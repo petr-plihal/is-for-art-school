@@ -1,0 +1,205 @@
+from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
+
+# Vytvoreni SQLAlchemy instance pro databazi
+db = SQLAlchemy()
+
+# tabulka pro uzivatele, kteri si mohou vypujcit dane zarizeni
+zarizeni_uzivatel = db.Table('zarizeni_uzivatel', db.metadata,
+    db.Column('id_zarizeni', db.Integer, db.ForeignKey('zarizeni.id', ondelete='CASCADE')),
+    db.Column('id_uzivatel', db.Integer, db.ForeignKey('uzivatel.id', ondelete='CASCADE'))
+)
+
+# Spojovaci tabulky pro vztahy N:N z ER diagramu
+# Uzivatele spadajici pod dany atelier
+atelier_uzivatel = db.Table('atelier_uzivatel', db.Model.metadata,
+    db.Column('id_uzivatel', db.Integer, db.ForeignKey('uzivatel.id', ondelete='CASCADE')),
+    db.Column('id_atelier', db.Integer, db.ForeignKey('atelier.id', ondelete='CASCADE'))
+)
+
+# Spravci daneho atelieru
+atelier_spravce = db.Table('atelier_spravce', db.Model.metadata,
+    db.Column('id_spravce', db.Integer, db.ForeignKey('spravce.id_spravce', ondelete='CASCADE')),
+    db.Column('id_atelier', db.Integer, db.ForeignKey('atelier.id', ondelete='CASCADE'))
+)
+
+# Vyucujici daneho atelieru
+atelier_vyucujici = db.Table('atelier_vyucujici', db.Model.metadata,
+    db.Column('id_vyucujici', db.Integer, db.ForeignKey('vyucujici.id_vyucujici', ondelete='CASCADE')),
+    db.Column('id_atelier', db.Integer, db.ForeignKey('atelier.id', ondelete='CASCADE'))
+)
+
+# Definice tabulek pro databazi pomoci trid
+class Atelier(db.Model):
+    __tablename__ = 'atelier'
+    id = db.Column(db.Integer, primary_key=True)
+    nazev = db.Column(db.String(50), unique=True, nullable=False)
+    
+    zarizeni = db.relationship('Zarizeni', back_populates='atelier')                                       # zarizeni atelieru
+    uzivatele = db.relationship('Uzivatel', secondary=atelier_uzivatel, back_populates='ateliery')         # uzivatel spadajici do atelieru
+    spravci = db.relationship('Spravce', secondary=atelier_spravce, back_populates='ateliery')             # spravce atelieru
+    ucitele = db.relationship('Vyucujici', secondary=atelier_vyucujici, back_populates='ateliery')         # vyucujici z atelieru
+    
+
+class Uzivatel(db.Model):
+    __tablename__ = 'uzivatel'
+    id = db.Column(db.Integer, primary_key=True)
+    login = db.Column(db.String(20), unique=True, nullable=False)
+    heslo = db.Column(db.String(50), nullable=False)
+    role = db.Column(db.String(20), nullable=False)     # spravce/vyucujici/reg.uzivatel
+    
+    zarizeni = db.relationship('Zarizeni', secondary=zarizeni_uzivatel, back_populates='uzivatel', passive_deletes=True)      # seznam moznych pujcitelu
+    ateliery = db.relationship('Atelier', secondary=atelier_uzivatel, back_populates='uzivatele')                             # ma pristup k atelieru
+    rezervace = db.relationship('Rezervace', back_populates='uzivatel', passive_deletes=True)                                 # rezervace vytvorene uzivatelem
+    
+    # Vytvoreni generalizace/specializace pres atribut role
+    __mapper_args__ = {
+        'polymorphic_identity': 'uzivatel',
+        'polymorphic_on': role
+    }
+    
+class Vyucujici(Uzivatel):
+    __tablename__ = 'vyucujici'
+    id = db.Column(db.Integer, db.ForeignKey('uzivatel.id', ondelete='CASCADE'), primary_key=True)
+    id_vyucujici = db.Column(db.Integer, nullable=False, autoincrement=True, unique=True)
+    
+    ateliery = db.relationship('Atelier', secondary=atelier_vyucujici, back_populates='ucitele')
+    zarizeni = db.relationship('Zarizeni', back_populates='vyucujici', passive_deletes=True)
+    rezervace = db.relationship('Rezervace', back_populates='vyucujici', passive_deletes=True)
+
+    # Specializace z Uzivatele
+    __mapper_args__ = {
+        'polymorphic_identity': 'vyucujici'
+    }
+    
+class Spravce(Uzivatel):
+    __tablename__ = 'spravce'
+    id = db.Column(db.Integer, db.ForeignKey('uzivatel.id', ondelete='CASCADE'), primary_key=True)
+    id_spravce = db.Column(db.Integer, nullable=False, autoincrement=True, unique=True)
+    
+    ateliery = db.relationship('Atelier', secondary=atelier_spravce, back_populates='spravci')
+
+    __mapper_args__ = {
+        'polymorphic_identity': 'spravce'
+    }
+
+class Typ(db.Model):
+    __tablename__ = 'typ'
+    id = db.Column(db.Integer, primary_key=True)
+    nazev = db.Column(db.String(50), unique=True, nullable=False)
+
+    zarizeni = db.relationship('Zarizeni', back_populates='typ', passive_deletes=True)
+
+
+class Zarizeni(db.Model):
+    __tablename__ = 'zarizeni'
+    id = db.Column(db.Integer, primary_key=True)
+    nazev = db.Column(db.String(100), nullable=False)
+    rok_vyroby = db.Column(db.DateTime)
+    datum_nakupu = db.Column(db.DateTime)
+    max_doba_vypujcky = db.Column(db.Integer) #jaky typ?
+    id_atelier = db.Column(db.Integer, db.ForeignKey('atelier.id', ondelete='CASCADE'), nullable=False)
+    id_typ = db.Column(db.Integer, db.ForeignKey('typ.id', ondelete='CASCADE'), nullable=False)
+    id_vyucujici = db.Column(db.Integer, db.ForeignKey('vyucujici.id_vyucujici', ondelete='CASCADE'), nullable=False)
+    #obrazek
+
+    atelier = db.relationship('Atelier', back_populates='zarizeni')
+    typ = db.relationship('Typ', back_populates='zarizeni')
+    vyucujici = db.relationship('Vyucujici', back_populates='zarizeni')
+    uzivatel = db.relationship('Uzivatel', secondary=zarizeni_uzivatel, back_populates='zarizeni')
+    navraceni = db.relationship('Navraceni', back_populates='zarizeni', passive_deletes=True)
+    rezervace = db.relationship('Rezervace', back_populates='zarizeni', passive_deletes=True)
+
+class Navraceni(db.Model):
+    __tablename__ = 'navraceni'
+    id = db.Column(db.Integer, primary_key=True)
+    id_zarizeni = db.Column(db.Integer, db.ForeignKey('zarizeni.id', ondelete='CASCADE'))
+    vraceni = db.Column(db.String(10), nullable=False) #jaky typ
+    datum = db.Column(db.DateTime, nullable=False)
+
+    zarizeni = db.relationship('Zarizeni', back_populates='navraceni')                                 # patri k danemu zarizeni
+    
+class Rezervace(db.Model):
+    __tablename__ = 'rezervace'
+    stav = db.Column(db.String(20), nullable=False)
+    datum_od = db.Column(db.DateTime, nullable=False)
+    datum_do = db.Column(db.DateTime, nullable=False)
+    id_zarizeni = db.Column(db.Integer, db.ForeignKey('zarizeni.id', ondelete='CASCADE'), nullable=False, primary_key=True)
+    id_uzivatel = db.Column(db.Integer, db.ForeignKey('uzivatel.id', ondelete='CASCADE'), nullable=False, primary_key=True)
+    id_vyucujici = db.Column(db.Integer, db.ForeignKey('vyucujici.id_vyucujici', ondelete='CASCADE'), nullable=False, primary_key=True)
+
+
+    zarizeni = db.relationship('Zarizeni', back_populates='rezervace')
+    uzivatel = db.relationship('Uzivatel', back_populates='rezervace')
+    vyucujici = db.relationship('Vyucujici', back_populates='rezervace', foreign_keys=[id_vyucujici]) # bez foreign_keys to hazelo error idk
+    
+# Funkce pro naplneni databaze ukazkovymi daty
+def insert_data():
+    typy = [
+        Typ(nazev='Počítačové vybavení'),
+        Typ(nazev='Kamery'),
+        Typ(nazev='Mikrofony'),
+        Typ(nazev='Osvětlení'),
+    ]
+    ateliery = [
+        Atelier(nazev='Filmový atelier'),
+        Atelier(nazev='Architektonický atelier'),
+        Atelier(nazev='Fotografický ateliér'),
+        Atelier(nazev='Výtvarný ateliér'),
+    ]
+    uzivatele = [
+        Spravce(login='spravce1', heslo='aaa', role='spravce', id_spravce=10),
+        Vyucujici(login='vyucuj1', heslo='aaa', role='vyucujici', id_vyucujici=100),
+        Vyucujici(login='vyucuj2', heslo='aaa', role='vyucujici', id_vyucujici=101),
+        Uzivatel(login='user1', heslo='aaa', role='uzivatel'),
+        Uzivatel(login='user2', heslo='aaa', role='uzivatel'),
+        Uzivatel(login='user3', heslo='aaa', role='uzivatel'),
+    ]
+    
+    zarizeni = [
+        Zarizeni(nazev = 'Notebook Lenovo', rok_vyroby = datetime(2021, 9, 14), datum_nakupu = datetime(2021, 12, 12), max_doba_vypujcky = 10, id_atelier = 1, id_typ = 1, id_vyucujici = 100),
+        Zarizeni(nazev = 'GoPro HERO10', rok_vyroby = datetime(2023, 1, 11), datum_nakupu = datetime(2024, 5, 5), max_doba_vypujcky = 20, id_atelier = 1, id_typ = 2, id_vyucujici = 100),
+        Zarizeni(nazev = 'Shure SM7db', rok_vyroby = datetime(2023, 2, 2), datum_nakupu = datetime(2023, 7, 10), max_doba_vypujcky = 30, id_atelier = 1, id_typ = 3, id_vyucujici = 100),
+        Zarizeni(nazev = 'Elgato Ring Light', rok_vyroby = datetime(2024, 1, 5), datum_nakupu = datetime(2024, 1, 6), max_doba_vypujcky = 100, id_atelier = 1, id_typ = 4, id_vyucujici = 100),
+        Zarizeni(nazev = 'Elgato Ring Light', rok_vyroby = datetime(2024, 1, 5), datum_nakupu = datetime(2024, 1, 10), max_doba_vypujcky = 100, id_atelier = 3, id_typ = 4, id_vyucujici = 101),
+    ]
+    
+    navraceni = [
+        Navraceni(id_zarizeni = 1, vraceni = 'Vypujceni', datum = datetime(2025, 1, 1)),
+        Navraceni(id_zarizeni = 2, vraceni = 'Vypujceni', datum = datetime(2025, 2, 1)),
+        Navraceni(id_zarizeni = 3, vraceni = 'Vypujceni', datum = datetime(2025, 2, 1)),
+        Navraceni(id_zarizeni = 4, vraceni = 'Vypujceni', datum = datetime(2025, 1, 1)),
+        Navraceni(id_zarizeni = 5, vraceni = 'Navraceni', datum = datetime.now()),
+        Navraceni(id_zarizeni = 1, vraceni = 'Navraceni', datum = datetime(2025, 1, 1)),
+        Navraceni(id_zarizeni = 1, vraceni = 'Navraceni', datum = datetime(2024, 12, 23)),
+    ]
+    
+    rezervace = [
+        Rezervace(stav = 'Vypujceno', datum_od = datetime(2024, 10, 1), datum_do = datetime(2025, 1, 1), id_zarizeni = 1, id_uzivatel = 3, id_vyucujici = 100),
+        Rezervace(stav = 'Vypujceno', datum_od = datetime(2024, 10, 1), datum_do = datetime(2025, 2, 1), id_zarizeni = 2, id_uzivatel = 3, id_vyucujici = 100),
+        Rezervace(stav = 'Zahájeno', datum_od = datetime(2024, 11, 1), datum_do = datetime(2025, 2, 1), id_zarizeni = 3, id_uzivatel = 3, id_vyucujici = 100),
+        Rezervace(stav = 'Zahájeno', datum_od = datetime(2024, 11, 1), datum_do = datetime(2025, 1, 1), id_zarizeni = 4, id_uzivatel = 5, id_vyucujici = 101),
+    ]
+    
+    # Propojeni uzivatelu s prislusnymi ateliery (naplneni spojovaci tabulky atelier_uzivatel)
+    uzivatele[0].ateliery.append(ateliery[0])   # pridani do ateliery_spravce i do ateliery_uzivatel
+    uzivatele[1].ateliery.append(ateliery[0])   # pridani do ateliery_vyucujici i do ateliery_uzivatel
+    uzivatele[2].ateliery.append(ateliery[2])   # pridani do ateliery_vyucujici i do ateliery_uzivatel
+    uzivatele[3].ateliery.append(ateliery[0])
+    uzivatele[4].ateliery.append(ateliery[2])
+    uzivatele[5].ateliery.append(ateliery[2])
+    uzivatele[5].ateliery.append(ateliery[0])
+    
+    # Pridani samotnych dat do databaze
+    db.session.add_all(typy)
+    db.session.add_all(ateliery)
+    db.session.add_all(uzivatele)
+    db.session.add_all(zarizeni)
+    db.session.add_all(navraceni)
+    db.session.add_all(rezervace)
+    db.session.commit()
+    
+# Zkouska funkcnosti CASCADE pri odstraneni zaznamu
+def delete_one():
+    db.session.query(Zarizeni).filter(Zarizeni.id == 1).delete()
+    db.session.commit()
