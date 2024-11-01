@@ -1,0 +1,51 @@
+{# 
+    Tohle je výchozí vzor (šablona) rozvržení všech stránek.
+    Pro zahrnutí této šablony ve svém souboru stačí na začátek přidat {%extends "base.html"%}.
+    Pro doplnění HTML obsahu do šablony slouží bloky, které se vkládají pomocí {% block nazev_bloku %} a {% endblock %}.
+
+    Samotná šablona obsahuje jen strukturu HTML stránky, navigační panel s jediným odkazem na domovskou stránku (odkazy lze přidávat pomocí bloku navbar).
+#}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {#
+        Použito {{}} místo běžné cesty - best practice, dynmicky generuje cestu pro statické soubory
+        url_for('static', filename='css/main.css') - generuje cestu k souboru main.css ve složce static
+        url_for('<function_in_app.py>') - generuje cestu k funkci v app.py
+    #}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    {% block head %}{% endblock %}
+</head>
+<body>
+
+    <nav>
+        <ul>
+            <li><a href="{{ url_for('index') }}">Home</a></li>
+            {% if 'user_id' in session %}
+                <li><a href="{{ url_for('logout') }}">Logout</a></li>
+            {% else %}
+                <li><a href="{{ url_for('login') }}">Login</a></li>
+            {% endif %}
+            {% block navbar %}{% endblock %}
+        </ul>
+    </nav>
+
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        {% block body %}{% endblock %}
+    </div>
+    
+</body>
+</html>
