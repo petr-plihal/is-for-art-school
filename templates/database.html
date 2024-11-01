@@ -1,0 +1,15 @@
+{%extends "base.html"%}
+
+{% block head %}
+    <title>Databaze</title>
+{% endblock %}
+
+{% block navbar %}
+{% endblock %}
+
+{% block body %}
+<h1>Operace s databazi</h1>
+    <a href="{{url_for('create_db')}}">Create database</a>
+    <a href="{{url_for('drop_db')}}">Drop database</a>
+    <a href="{{url_for('insert')}}">Insert data</a>
+{% endblock %}

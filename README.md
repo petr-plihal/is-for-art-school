@@ -8,7 +8,7 @@ IIS Projekt - Umělecká škola
 `source env/bin/activate`
 
 ### Pridani balicku do virtualenv
-`pip3 install flask flask-sqlalchemy pymysql`
+`pip3 install flask flask-sqlalchemy pymysql flask-bycrypt flask-login`
 
 ### Samotne spusteni aplikace
 `python3 app.py`
@@ -20,3 +20,12 @@ Pri pouzivani googlecloud databaze by to melo bezet bez problemu, ale pokud bude
 - stahnout mySQL
 - vytvorit databazi
 - vytvorit uzivatele a predat mu prava
+
+
+#### Ukazkový uživatelé
+##### Loginy
+Správci: spravce1
+Učitele: vyucuj1, vyucuj2
+Uživatele: user1, user2, user3
+##### Heslo pro všechny
+aaa

@@ -1,5 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+from flask_login import UserMixin
 
 # Vytvoreni SQLAlchemy instance pro databazi
 db = SQLAlchemy()
@@ -41,12 +42,12 @@ class Atelier(db.Model):
     ucitele = db.relationship('Vyucujici', secondary=atelier_vyucujici, back_populates='ateliery')         # vyucujici z atelieru
     
 
-class Uzivatel(db.Model):
+class Uzivatel(db.Model, UserMixin):
     __tablename__ = 'uzivatel'
     id = db.Column(db.Integer, primary_key=True)
     login = db.Column(db.String(20), unique=True, nullable=False)
-    heslo = db.Column(db.String(50), nullable=False)
-    role = db.Column(db.String(20), nullable=False)     # spravce/vyucujici/reg.uzivatel
+    heslo = db.Column(db.String(100), nullable=False)
+    role = db.Column(db.String(20), nullable=False, default = 'uzivatel')     # spravce/vyucujici/reg.uzivatel
     
     zarizeni = db.relationship('Zarizeni', secondary=zarizeni_uzivatel, back_populates='uzivatel', passive_deletes=True)      # seznam moznych pujcitelu
     ateliery = db.relationship('Atelier', secondary=atelier_uzivatel, back_populates='uzivatele')                             # ma pristup k atelieru
@@ -134,7 +135,7 @@ class Rezervace(db.Model):
     vyucujici = db.relationship('Vyucujici', back_populates='rezervace', foreign_keys=[id_vyucujici]) # bez foreign_keys to hazelo error idk
     
 # Funkce pro naplneni databaze ukazkovymi daty
-def insert_data():
+def insert_data(bcrypt):
     typy = [
         Typ(nazev='Počítačové vybavení'),
         Typ(nazev='Kamery'),
@@ -148,12 +149,12 @@ def insert_data():
         Atelier(nazev='Výtvarný ateliér'),
     ]
     uzivatele = [
-        Spravce(login='spravce1', heslo='aaa', role='spravce', id_spravce=10),
-        Vyucujici(login='vyucuj1', heslo='aaa', role='vyucujici', id_vyucujici=100),
-        Vyucujici(login='vyucuj2', heslo='aaa', role='vyucujici', id_vyucujici=101),
-        Uzivatel(login='user1', heslo='aaa', role='uzivatel'),
-        Uzivatel(login='user2', heslo='aaa', role='uzivatel'),
-        Uzivatel(login='user3', heslo='aaa', role='uzivatel'),
+        Spravce(id = 1, login='spravce1', heslo=bcrypt.generate_password_hash('aaa'), role='spravce', id_spravce=10),
+        Vyucujici(id = 2, login='vyucuj1', heslo=bcrypt.generate_password_hash('aaa'), role='vyucujici', id_vyucujici=100),
+        Vyucujici(id = 3, login='vyucuj2', heslo=bcrypt.generate_password_hash('aaa'), role='vyucujici', id_vyucujici=101),
+        Uzivatel(id = 4, login='user1', heslo=bcrypt.generate_password_hash('aaa'), role='uzivatel'),
+        Uzivatel(id = 5, login='user2', heslo=bcrypt.generate_password_hash('aaa'), role='uzivatel'),
+        Uzivatel(id = 6, login='user3', heslo=bcrypt.generate_password_hash('aaa'), role='uzivatel'),
     ]
     
     zarizeni = [

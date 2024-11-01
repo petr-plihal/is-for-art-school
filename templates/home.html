@@ -10,5 +10,11 @@
 
 {% block body %}
     <p>Vítej zvíře! Totiž, studente umělky!</p>
+    
+    {% if current_user.is_authenticated %}
+        <h2>Je prihlasen uzivatel: {{ current_user.login }}</h2>
+    {% else %}
+        <h2>Nejste prihlasen</h2>
+    {% endif %}
 
 {% endblock %}
