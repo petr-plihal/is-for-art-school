@@ -3,9 +3,9 @@ IIS Projekt - Umělecká škola
 
 # Prvni spusteni
 ### Stazeni a spusteni virtual env
-`pip3 install virtualenv`
-`virtualenv env`
-`source env/bin/activate`
+- `pip3 install virtualenv`
+- `virtualenv env`
+- `source env/bin/activate`
 
 ### Pridani balicku do virtualenv
 `pip3 install flask flask-sqlalchemy pymysql flask-bycrypt flask-login`
@@ -24,8 +24,8 @@ Pri pouzivani googlecloud databaze by to melo bezet bez problemu, ale pokud bude
 
 #### Ukazkový uživatelé
 ##### Loginy
-Správci: spravce1
-Učitele: vyucuj1, vyucuj2
-Uživatele: user1, user2, user3
+- Správci: spravce1
+- Učitele: vyucuj1, vyucuj2
+- Uživatele: user1, user2, user3
 ##### Heslo pro všechny
 aaa
