@@ -1,0 +1,21 @@
+{%extends "base.html"%}
+
+{% block head %}
+    <title>Login stránka</title>
+{% endblock %}
+
+{% block navbar %}
+{% endblock %}
+
+{% block body %}
+<h1>Login</h1>
+<form method="POST" action="/login">
+    <label for="username">Uživatelský login:</label><br>
+    <input type="text" id="username" name="username" required>
+    <br>
+    <label for="password">Heslo:</label><br>
+    <input type="password" id="password" name="password" required>
+    <br>
+    <button type="submit">Login</button>
+</form>
+{% endblock %}
