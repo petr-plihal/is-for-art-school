@@ -93,35 +93,23 @@ def aktualizace_zarizeni(id_zarizeni, novy_nazev=None, novy_typ=None, novy_ateli
 # ------
 
 # ---- Správa seznamů skupin vypůjčení ateliéru ----
-'''
-# Přidání nové skupiny vypůjčení
-def pridat_skupinu(nazev_skupiny, id_atelier):
-    nova_skupina = Skupina(nazev=nazev_skupiny, id_atelier=id_atelier)
-    db.session.add(nova_skupina)
-    db.session.commit()
 
-# Odstranění skupiny podle ID
-def odstraneni_skupiny(id_skupiny):
-    skupina = Skupina.query.get(id_skupiny)
-    if skupina:
-        db.session.delete(skupina)
+# Funkce pro přidání vztahu mezi zařízením a uživatelem
+def pridat_zaznam_zarizeni_uzivatel(id_zarizeni, id_uzivatel):
+    # Ověření, zda záznam již existuje
+    existujici_zaznam = db.session.query(zarizeni_uzivatel).filter_by(id_zarizeni=id_zarizeni, id_uzivatel=id_uzivatel).first()
+
+    if not existujici_zaznam:
+        novy_zaznam = zarizeni_uzivatel.insert().values(id_zarizeni=id_zarizeni, id_uzivatel=id_uzivatel)
+        db.session.add(novy_zaznam)
         db.session.commit()
 
-# Získání všech skupin vypůjčení
-def ziskat_vsechny_skupiny():
-    return Skupina.query.all()
+# Funkce pro kontrolu, zda je zařízení v nějakém vztahu s libovolným uživatelem
+def ma_zarizeni_zaznamy(id_zarizeni):
+    # Dotaz na první záznam, který odpovídá id_zarizeni
+    existuje_zaznam = db.session.query(zarizeni_uzivatel).filter_by(id_zarizeni=id_zarizeni).first() is not None
+    return existuje_zaznam
 
-# Úprava skupiny podle ID
-def upravit_skupinu(id_skupiny, novy_nazev=None, novy_id_atelier=None):
-    skupina = Skupina.query.get(id_skupiny)
-    if skupina:
-        if novy_nazev:
-            skupina.nazev = novy_nazev
-        if novy_id_atelier:
-            skupina.id_atelier = novy_id_atelier
-        db.session.commit()
-# --------
-'''
 #           ------------- Správce ateliéru -------------
 
 # ---- Správa typů zařízení ----
