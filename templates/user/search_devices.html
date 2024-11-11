@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block head %}
+    <title>Hledat zařízení</title>
+{% endblock %}
+
+{% block navbar %}
+{% endblock %}
+
+{% block body %}
+    <h1>Vyhledávač zařízení</h1>
+    <form method="GET" action="{{ url_for('search_devices') }}">
+        <label for="nazev">Název:</label>
+        <input type="text" id="nazev" name="nazev" value="{{ request.args.get('nazev', '') }}">
+        <br>
+        
+        <label>Typ:</label>
+        <input type="radio" id="typ_all" name="id_typ" value="" {% if not request.args.get('id_typ') %}checked{% endif %}>
+        <label for="typ_all">Vše</label>
+        {% for typ in typy %}
+            <input type="radio" id="typ_{{ typ.id }}" name="id_typ" value="{{ typ.id }}" {% if request.args.get('id_typ') == typ.id|string %}checked{% endif %}>
+            <label for="typ_{{ typ.id }}">{{ typ.nazev }}</label>
+        {% endfor %}
+        <br>
+        
+        <label>Ateliér:</label>
+        <input type="radio" id="atelier_all" name="id_atelier" value="" {% if not request.args.get('id_atelier') %}checked{% endif %}>
+        <label for="atelier_all">Vše</label>
+        {% for atelier in ateliery %}
+            <input type="radio" id="atelier_{{ atelier.id }}" name="id_atelier" value="{{ atelier.id }}" {% if request.args.get('id_atelier') == atelier.id|string %}checked{% endif %}>
+            <label for="atelier_{{ atelier.id }}">{{ atelier.nazev }}</label>
+        {% endfor %}
+        <br>
+        
+        <button type="submit">Hledat</button>
+    </form>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Název</th>
+                <th>Typ</th>
+                <th>Ateliér</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for device in devices %}
+            <tr>
+                <td>{{ device.nazev }}</td>
+                <td>{{ device.typ.nazev }}</td>
+                <td>{{ device.atelier.nazev }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

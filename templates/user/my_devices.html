@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block head %}
+    <title>Moje vypůjčená zařízení</title>
+{% endblock %}
+
+{% block navbar %}
+{% endblock %}
+
+{% block body %}
+    <h1>Moje vypůjčená zařízení</h1>
+    <p>ID aktuálního uživatele: {{ user_id }}</p>
+    <table>
+        <thead>
+            <tr>
+                <th>Název zařízení</th>
+                <th>Stav</th>
+                <th>Datum od</th>
+                <th>Datum do</th>
+                <th>Ateliér</th>
+                <th>Vyučující</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for vypujcka in vypujcky %}
+            <tr>
+                <td>{{ vypujcka.zarizeni.nazev }}</td>
+                <td>{{ vypujcka.stav }}</td>
+                <td>{{ vypujcka.datum_od.strftime('%Y-%m-%d') }}</td>
+                <td>{{ vypujcka.datum_do.strftime('%Y-%m-%d') }}</td>
+                <td>{{ vypujcka.zarizeni.atelier.nazev }}</td>
+                <td>{{ vypujcka.zarizeni.vyucujici.login }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}
