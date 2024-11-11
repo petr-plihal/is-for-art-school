@@ -12,11 +12,14 @@
     Login: {{current_user.login}}<br>
     UserID: {{current_user.id}}<br>
     Role: {{current_user.role}}<br>
+    <a href="{{url_for('user_change')}}">Změnit heslo</a><br>
 
     <h3>Tvé rezervace:</h3>
     <ul>
         {% for rezervace in rezervace %}
-            <li>{{ rezervace.stav }} - {{ rezervace.datum_od }} {{ rezervace.datum_do }}</li>
+            <li>{{ rezervace.stav }} - Od: {{ rezervace.datum_od.day }}. {{ rezervace.datum_od.month }}. {{ rezervace.datum_od.year }}
+                Do: {{ rezervace.datum_do.day }}. {{ rezervace.datum_do.month }}. {{ rezervace.datum_do.year }}
+            </li>
         {% endfor %}
     </ul>
 {% endblock %}
