@@ -1,0 +1,23 @@
+{%extends "base.html"%}
+
+{% block head %}
+    <title>Změna hesla</title>
+{% endblock %}
+
+{% block navbar %}
+{% endblock %}
+
+{% block body %}
+    <p>Změna hesla pro uživatele {{current_user.login}}</p>
+    <p>Zadejte údaje, které chcete změnit:</p>
+    <form method="POST" action="/user_change">
+        <label for="username">Nový uživatelský login:</label><br>
+        <input type="text" id="login" name="new_login"><br>
+        <label for="password">Nové heslo:</label><br>
+        <input type="password" id="pwd" name="new_pwd"><br>
+        <label for="password">Znova nové heslo:</label><br>
+        <input type="password" id="pwd" name="new_pwd2"><br>
+        <input type="submit" value="Změň údaje">
+    </form>
+
+{% endblock %}

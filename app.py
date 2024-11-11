@@ -98,7 +98,7 @@ def login():
         user = Uzivatel.query.filter_by(login=login).first()    # Vyhledavani uzivatele v databazi podle loginu
         if user is None:
             flash('Uzivatel s danym loginem neexsituje', 'danger')
-            return redirect(url_for('auth/login.html'))
+            return render_template('auth/login.html')
         if bcrypt.check_password_hash(user.heslo, password):    # V databazi nalezneme heslo u uzivatele a zkontrolujeme shodu
             login_user(user)
             flash('Úspěšně přihlášen', 'success')
@@ -121,6 +121,39 @@ def profile():
     rezervace = Rezervace.query.filter_by(id_uzivatel=current_user.id).all()
     return render_template('profile.html', rezervace=rezervace)
 
+@app.route('/user_change', methods=['GET', 'POST'])
+@login_required
+def user_change():
+    if request.method == 'GET':
+        return render_template('auth/user_change.html')
+    elif request.method == 'POST':
+        new_login = request.form.get('new_login')
+        new_password = request.form.get('new_pwd')
+        new_password_check = request.form.get('new_pwd2')
+        
+        if not new_login and not new_password:
+            flash('Nebyly zadány žádné nové údaje', 'danger')
+            return render_template('auth/user_change.html')
+            
+        elif new_password:
+            hashed_password = bcrypt.generate_password_hash(new_password)
+            if new_password == new_password_check:
+                current_user.heslo = hashed_password
+            else:
+                flash('Hesla se neshodují', 'danger')
+                return render_template('auth/user_change.html')
+                
+        if new_login:
+            if Uzivatel.query.filter_by(login=new_login).first():
+                flash('Uživatel s daným loginem již existuje', 'danger')
+                return render_template('auth/user_change.html')
+            current_user.login = new_login
+        
+        db.session.commit()
+        flash('Úspěšně změněno', 'success')
+        return redirect(url_for('profile'))
+        
+
 # Nastaveni timeoutu, po 30minutach neaktivity bude uzivatel odhlasen
 @app.before_request
 def before_request():
@@ -130,22 +163,30 @@ def before_request():
     g.user = current_user
 
 # role_required - dekorátor, ověřuje roli uživatele
-def role_required(role):
+def role_required(roles):
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
-            if 'role' not in session or session['role'] != role:
-                flash('Nemáte přístupová práva na tuto stránku', 'danger')
-                return redirect(url_for('home'))
-            return f(*args, **kwargs)
+            for r in roles:
+                if current_user.role == r:
+                    return f(*args, **kwargs)
+            flash('Nemáte přístupová práva na tuto stránku', 'danger')
+            return redirect(url_for('home'))
         return decorated_function
     return decorator
 
 @app.route('/admin')
 @login_required
-@role_required('admin')
+@role_required(['admin'])
 def protected():
     return 'Stránka pouze pro admina'
+
+@app.route('/stranka')
+@login_required
+@role_required(['admin', 'vyucujici', 'uzivatel'])
+def test_roles():
+    return 'Stranka je pro vsechny krome spravce (nemame ho radi :)))'
+
 
 @app.route('/home')
 def home():

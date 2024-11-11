@@ -84,6 +84,15 @@ class Spravce(Uzivatel):
         'polymorphic_identity': 'spravce'
     }
 
+class Admin(Uzivatel):
+    __tablename__ = 'admin'
+    id = db.Column(db.Integer, db.ForeignKey('uzivatel.id', ondelete='CASCADE'), primary_key=True)
+
+    __mapper_args__ = {
+        'polymorphic_identity': 'admin'
+    }
+
+
 class Typ(db.Model):
     __tablename__ = 'typ'
     id = db.Column(db.Integer, primary_key=True)
@@ -122,7 +131,7 @@ class Navraceni(db.Model):
     
 class Rezervace(db.Model):
     __tablename__ = 'rezervace'
-    stav = db.Column(db.String(20), nullable=False)
+    stav = db.Column(db.String(20), nullable=False)  # Rezervováno, Vypůjčeno, Vráceno
     datum_od = db.Column(db.DateTime, nullable=False)
     datum_do = db.Column(db.DateTime, nullable=False)
     id_zarizeni = db.Column(db.Integer, db.ForeignKey('zarizeni.id', ondelete='CASCADE'), nullable=False, primary_key=True)
@@ -155,6 +164,7 @@ def insert_data(bcrypt):
         Uzivatel(id = 4, login='user1', heslo=bcrypt.generate_password_hash('aaa'), role='uzivatel'),
         Uzivatel(id = 5, login='user2', heslo=bcrypt.generate_password_hash('aaa'), role='uzivatel'),
         Uzivatel(id = 6, login='user3', heslo=bcrypt.generate_password_hash('aaa'), role='uzivatel'),
+        Uzivatel(id = 100, login='admin', heslo=bcrypt.generate_password_hash('aaa'), role='admin'),
     ]
     
     zarizeni = [
@@ -176,9 +186,9 @@ def insert_data(bcrypt):
     ]
     
     rezervace = [
-        Rezervace(stav = 'Vypujceno', datum_od = datetime(2024, 10, 1), datum_do = datetime(2025, 1, 1), id_zarizeni = 1, id_uzivatel = 3, id_vyucujici = 100),
-        Rezervace(stav = 'Vypujceno', datum_od = datetime(2024, 10, 1), datum_do = datetime(2025, 2, 1), id_zarizeni = 2, id_uzivatel = 3, id_vyucujici = 100),
-        Rezervace(stav = 'Zahájeno', datum_od = datetime(2024, 11, 1), datum_do = datetime(2025, 2, 1), id_zarizeni = 3, id_uzivatel = 3, id_vyucujici = 100),
+        Rezervace(stav = 'Vypujceno', datum_od = datetime(2024, 10, 1), datum_do = datetime(2025, 1, 1), id_zarizeni = 1, id_uzivatel = 4, id_vyucujici = 100),
+        Rezervace(stav = 'Vypujceno', datum_od = datetime(2024, 10, 1), datum_do = datetime(2025, 2, 1), id_zarizeni = 2, id_uzivatel = 4, id_vyucujici = 100),
+        Rezervace(stav = 'Zahájeno', datum_od = datetime(2024, 11, 1), datum_do = datetime(2025, 2, 1), id_zarizeni = 3, id_uzivatel = 4, id_vyucujici = 100),
         Rezervace(stav = 'Zahájeno', datum_od = datetime(2024, 11, 1), datum_do = datetime(2025, 1, 1), id_zarizeni = 4, id_uzivatel = 5, id_vyucujici = 101),
     ]
     
