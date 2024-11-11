@@ -209,8 +209,7 @@ def search_devices():
 @login_required
 def my_devices():
     borrow = sledovani_vypujcek(current_user.id)
-    user_id=current_user.id
-    return render_template('user/my_devices.html', borrow=borrow, user_id=user_id)
+    return render_template('user/my_devices.html', borrow=borrow)
 
 if __name__ == '__main__':
     app.run(debug=True)

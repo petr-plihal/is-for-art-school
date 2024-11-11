@@ -9,7 +9,9 @@
 
 {% block body %}
     <h1>Moje vypůjčená zařízení</h1>
+    {#
     <p>ID aktuálního uživatele: {{ user_id }}</p>
+    #}
     <table>
         <thead>
             <tr>
@@ -22,14 +24,14 @@
             </tr>
         </thead>
         <tbody>
-            {% for vypujcka in vypujcky %}
+            {% for borrowed in borrow %}
             <tr>
-                <td>{{ vypujcka.zarizeni.nazev }}</td>
-                <td>{{ vypujcka.stav }}</td>
-                <td>{{ vypujcka.datum_od.strftime('%Y-%m-%d') }}</td>
-                <td>{{ vypujcka.datum_do.strftime('%Y-%m-%d') }}</td>
-                <td>{{ vypujcka.zarizeni.atelier.nazev }}</td>
-                <td>{{ vypujcka.zarizeni.vyucujici.login }}</td>
+                <td>{{ borrowed.zarizeni.nazev }}</td>
+                <td>{{ borrowed.stav }}</td>
+                <td>{{ borrowed.datum_od.strftime('%Y-%m-%d') }}</td>
+                <td>{{ borrowed.datum_do.strftime('%Y-%m-%d') }}</td>
+                <td>{{ borrowed.zarizeni.atelier.nazev }}</td>
+                <td>{{ borrowed.zarizeni.vyucujici.login }}</td>
             </tr>
             {% endfor %}
         </tbody>
