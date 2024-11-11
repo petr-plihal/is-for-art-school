@@ -1,7 +1,11 @@
 from flask import Flask, render_template, redirect, url_for, request, session, g, flash
 from flask_login import current_user, login_user, logout_user, LoginManager, login_required
 from flask_bcrypt import Bcrypt
+
 from model import db, insert_data, delete_one, Uzivatel, Rezervace
+
+from usecase import hledani_zarizeni, ziskat_vsechny_typy, seznam_atelieru, sledovani_vypujcek
+
 from datetime import timedelta
 from functools import wraps # Dekorátor
 import pymysql
@@ -146,6 +150,26 @@ def protected():
 @app.route('/home')
 def home():
     return render_template('home.html')
+
+@app.route('/search_devices', methods=['GET'])
+@login_required
+def search_devices():
+    nazev = request.args.get('nazev')
+    id_typ = request.args.get('id_typ')
+    id_atelier = request.args.get('id_atelier')
+    
+    devices = hledani_zarizeni(nazev=nazev, id_typ=id_typ, id_atelier=id_atelier)
+    typy = ziskat_vsechny_typy()
+    ateliery = seznam_atelieru()
+    
+    return render_template('user/search_devices.html', devices=devices, typy=typy, ateliery=ateliery)
+
+@app.route('/my_devices')
+@login_required
+def my_devices():
+    borrow = sledovani_vypujcek(current_user.id)
+    user_id=current_user.id
+    return render_template('user/my_devices.html', borrow=borrow, user_id=user_id)
 
 if __name__ == '__main__':
     app.run(debug=True)
