@@ -8,7 +8,7 @@ IIS Projekt - Umělecká škola
 - `source env/bin/activate`
 
 ### Pridani balicku do virtualenv
-`pip3 install flask flask-sqlalchemy pymysql flask-bycrypt flask-login cryptography`
+`pip3 install flask flask-sqlalchemy pymysql flask-bcrypt flask-login cryptography`
 
 ### Samotne spusteni aplikace
 `python3 app.py`
