@@ -47,7 +47,7 @@ class Uzivatel(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     login = db.Column(db.String(20), unique=True, nullable=False)
     heslo = db.Column(db.String(100), nullable=False)
-    role = db.Column(db.String(20), nullable=False, default = 'uzivatel')     # spravce/vyucujici/reg.uzivatel
+    role = db.Column(db.String(20), nullable=False, default = 'uzivatel')     # admin/spravce/vyucujici/reg.uzivatel
     
     zarizeni = db.relationship('Zarizeni', secondary=zarizeni_uzivatel, back_populates='uzivatel', passive_deletes=True)      # seznam moznych pujcitelu
     ateliery = db.relationship('Atelier', secondary=atelier_uzivatel, back_populates='uzivatele')                             # ma pristup k atelieru
@@ -107,7 +107,8 @@ class Zarizeni(db.Model):
     nazev = db.Column(db.String(100), nullable=False)
     rok_vyroby = db.Column(db.DateTime)
     datum_nakupu = db.Column(db.DateTime)
-    max_doba_vypujcky = db.Column(db.Integer) #jaky typ?
+    max_doba_vypujcky = db.Column(db.Integer)   # Pocet dni
+    povolene = db.Column(db.Boolean, default=True)
     id_atelier = db.Column(db.Integer, db.ForeignKey('atelier.id', ondelete='CASCADE'), nullable=False)
     id_typ = db.Column(db.Integer, db.ForeignKey('typ.id', ondelete='CASCADE'), nullable=False)
     id_vyucujici = db.Column(db.Integer, db.ForeignKey('vyucujici.id_vyucujici', ondelete='CASCADE'), nullable=False)
@@ -124,19 +125,20 @@ class Navraceni(db.Model):
     __tablename__ = 'navraceni'
     id = db.Column(db.Integer, primary_key=True)
     id_zarizeni = db.Column(db.Integer, db.ForeignKey('zarizeni.id', ondelete='CASCADE'))
-    vraceni = db.Column(db.String(10), nullable=False) #jaky typ
+    vraceni = db.Column(db.String(10), nullable=False) # Vypujceni/Navraceni
     datum = db.Column(db.DateTime, nullable=False)
 
     zarizeni = db.relationship('Zarizeni', back_populates='navraceni')                                 # patri k danemu zarizeni
     
 class Rezervace(db.Model):
     __tablename__ = 'rezervace'
-    stav = db.Column(db.String(20), nullable=False)  # Rezervováno, Vypůjčeno, Vráceno
+    id = db.Column(db.Integer, primary_key=True)
+    stav = db.Column(db.String(20), nullable=False)  # Rezervováno, Vypujceno, Vraceno
     datum_od = db.Column(db.DateTime, nullable=False)
     datum_do = db.Column(db.DateTime, nullable=False)
-    id_zarizeni = db.Column(db.Integer, db.ForeignKey('zarizeni.id', ondelete='CASCADE'), nullable=False, primary_key=True)
-    id_uzivatel = db.Column(db.Integer, db.ForeignKey('uzivatel.id', ondelete='CASCADE'), nullable=False, primary_key=True)
-    id_vyucujici = db.Column(db.Integer, db.ForeignKey('vyucujici.id_vyucujici', ondelete='CASCADE'), nullable=False, primary_key=True)
+    id_zarizeni = db.Column(db.Integer, db.ForeignKey('zarizeni.id', ondelete='CASCADE'), nullable=False)
+    id_uzivatel = db.Column(db.Integer, db.ForeignKey('uzivatel.id', ondelete='CASCADE'), nullable=False)
+    id_vyucujici = db.Column(db.Integer, db.ForeignKey('vyucujici.id_vyucujici', ondelete='CASCADE'), nullable=False)
 
 
     zarizeni = db.relationship('Zarizeni', back_populates='rezervace')
@@ -164,7 +166,7 @@ def insert_data(bcrypt):
         Uzivatel(id = 4, login='user1', heslo=bcrypt.generate_password_hash('aaa'), role='uzivatel'),
         Uzivatel(id = 5, login='user2', heslo=bcrypt.generate_password_hash('aaa'), role='uzivatel'),
         Uzivatel(id = 6, login='user3', heslo=bcrypt.generate_password_hash('aaa'), role='uzivatel'),
-        Uzivatel(id = 100, login='admin', heslo=bcrypt.generate_password_hash('aaa'), role='admin'),
+        Admin(id = 100, login='admin', heslo=bcrypt.generate_password_hash('aaa'), role='admin'),
     ]
     
     zarizeni = [
@@ -173,6 +175,11 @@ def insert_data(bcrypt):
         Zarizeni(nazev = 'Shure SM7db', rok_vyroby = datetime(2023, 2, 2), datum_nakupu = datetime(2023, 7, 10), max_doba_vypujcky = 30, id_atelier = 1, id_typ = 3, id_vyucujici = 100),
         Zarizeni(nazev = 'Elgato Ring Light', rok_vyroby = datetime(2024, 1, 5), datum_nakupu = datetime(2024, 1, 6), max_doba_vypujcky = 100, id_atelier = 1, id_typ = 4, id_vyucujici = 100),
         Zarizeni(nazev = 'Elgato Ring Light', rok_vyroby = datetime(2024, 1, 5), datum_nakupu = datetime(2024, 1, 10), max_doba_vypujcky = 100, id_atelier = 3, id_typ = 4, id_vyucujici = 101),
+        Zarizeni(nazev = 'Reproduktory Marhall Acton', rok_vyroby = datetime(2023, 1, 1), datum_nakupu = datetime(2023, 1, 10), max_doba_vypujcky = 90, id_atelier = 1, id_typ = 1, id_vyucujici = 100),
+        Zarizeni(nazev = 'Notebook MacBook Air', rok_vyroby = datetime(2023, 1, 1), datum_nakupu = datetime(2023, 1, 10), max_doba_vypujcky = 300, id_atelier = 1, id_typ = 1, id_vyucujici = 100),
+        Zarizeni(nazev = 'Kamera SONY ABC2', rok_vyroby = datetime(2023, 1, 1), datum_nakupu = datetime(2024, 1, 1), max_doba_vypujcky = 300, id_atelier = 1, id_typ = 2, id_vyucujici = 100),
+        Zarizeni(nazev = 'Notebook MacBook Air', rok_vyroby = datetime(2020, 1, 1), datum_nakupu = datetime(2021, 12, 12), max_doba_vypujcky = 300, id_atelier = 2, id_typ = 1, id_vyucujici = 100),
+        Zarizeni(nazev = 'LED pásky', rok_vyroby = datetime(2020, 1, 1), datum_nakupu = datetime(2022, 7, 11), max_doba_vypujcky = 70, id_atelier = 2, id_typ = 4, id_vyucujici = 100),
     ]
     
     navraceni = [
@@ -188,15 +195,30 @@ def insert_data(bcrypt):
     rezervace = [
         Rezervace(stav = 'Vypujceno', datum_od = datetime(2024, 10, 1), datum_do = datetime(2025, 1, 1), id_zarizeni = 1, id_uzivatel = 4, id_vyucujici = 100),
         Rezervace(stav = 'Vypujceno', datum_od = datetime(2024, 10, 1), datum_do = datetime(2025, 2, 1), id_zarizeni = 2, id_uzivatel = 4, id_vyucujici = 100),
-        Rezervace(stav = 'Zahájeno', datum_od = datetime(2024, 11, 1), datum_do = datetime(2025, 2, 1), id_zarizeni = 3, id_uzivatel = 4, id_vyucujici = 100),
-        Rezervace(stav = 'Zahájeno', datum_od = datetime(2024, 11, 1), datum_do = datetime(2025, 1, 1), id_zarizeni = 4, id_uzivatel = 5, id_vyucujici = 101),
+        Rezervace(stav = 'Rezervovano', datum_od = datetime(2024, 11, 1), datum_do = datetime(2025, 2, 1), id_zarizeni = 3, id_uzivatel = 4, id_vyucujici = 100),
+        Rezervace(stav = 'Rezervovano', datum_od = datetime(2024, 11, 1), datum_do = datetime(2025, 1, 1), id_zarizeni = 4, id_uzivatel = 5, id_vyucujici = 101),
+        Rezervace(stav = 'Vraceno', datum_od = datetime(2023, 1, 10), datum_do = datetime(2023, 1, 30), id_zarizeni = 6, id_uzivatel = 4, id_vyucujici = 100),
+        Rezervace(stav = 'Vraceno', datum_od = datetime(2023, 1, 12), datum_do = datetime(2023, 2, 1), id_zarizeni = 7, id_uzivatel = 4, id_vyucujici = 100),
+        Rezervace(stav = 'Vraceno', datum_od = datetime(2023, 11, 12), datum_do = datetime(2023, 12, 12), id_zarizeni = 6, id_uzivatel = 4, id_vyucujici = 100),
+        Rezervace(stav = 'Vraceno', datum_od = datetime(2023, 11, 12), datum_do = datetime(2023, 12, 1), id_zarizeni = 8, id_uzivatel = 4, id_vyucujici = 100),
+        Rezervace(stav = 'Rezervovano', datum_od = datetime(2025, 1, 1), datum_do = datetime(2025, 2, 1), id_zarizeni = 3, id_uzivatel = 4, id_vyucujici = 100),
+        Rezervace(stav = 'Rezervovano', datum_od = datetime(2025, 1, 1), datum_do = datetime(2025, 2, 1), id_zarizeni = 4, id_uzivatel = 4, id_vyucujici = 100),
+        Rezervace(stav = 'Vypujceno', datum_od = datetime(2024, 11, 13), datum_do = datetime(2025, 1, 1), id_zarizeni = 2, id_uzivatel = 4, id_vyucujici = 100),
+        Rezervace(stav = 'Vypujceno', datum_od = datetime(2024, 11, 13), datum_do = datetime(2025, 1, 1), id_zarizeni = 7, id_uzivatel = 4, id_vyucujici = 100),
+        
     ]
     
-    # Propojeni uzivatelu s prislusnymi ateliery (naplneni spojovaci tabulky atelier_uzivatel)
-    uzivatele[0].ateliery.append(ateliery[0])   # pridani do ateliery_spravce i do ateliery_uzivatel
-    uzivatele[1].ateliery.append(ateliery[0])   # pridani do ateliery_vyucujici i do ateliery_uzivatel
-    uzivatele[2].ateliery.append(ateliery[2])   # pridani do ateliery_vyucujici i do ateliery_uzivatel
+    # Propojeni uzivatelu s prislusnymi ateliery
+    # Pro správce/vyučující se přidají do tabulky atelier_spravce/atelier_vyucujici
+    uzivatele[0].ateliery.append(ateliery[0])
+    uzivatele[1].ateliery.append(ateliery[0])
+    uzivatele[1].ateliery.append(ateliery[1])
+    uzivatele[1].ateliery.append(ateliery[2])
+    uzivatele[2].ateliery.append(ateliery[2])
+    
+    # Přidání obyčejných uživatelů do ateliérů, funguje takhle bez problémů
     uzivatele[3].ateliery.append(ateliery[0])
+    uzivatele[3].ateliery.append(ateliery[1])
     uzivatele[4].ateliery.append(ateliery[2])
     uzivatele[5].ateliery.append(ateliery[2])
     uzivatele[5].ateliery.append(ateliery[0])
@@ -208,6 +230,15 @@ def insert_data(bcrypt):
     db.session.add_all(zarizeni)
     db.session.add_all(navraceni)
     db.session.add_all(rezervace)
+    
+    db.session.commit()
+    
+    # Po commitu, lze přidat vyučující/správce i jako obyčejné uživatele do ateliérů (aby si také mohli vypujčovat zařízení)
+    db.session.execute(atelier_uzivatel.insert().values(id_atelier=ateliery[0].id, id_uzivatel=uzivatele[0].id))
+    db.session.execute(atelier_uzivatel.insert().values(id_atelier=ateliery[0].id, id_uzivatel=uzivatele[1].id))
+    db.session.execute(atelier_uzivatel.insert().values(id_atelier=ateliery[1].id, id_uzivatel=uzivatele[1].id))
+    db.session.execute(atelier_uzivatel.insert().values(id_atelier=ateliery[2].id, id_uzivatel=uzivatele[1].id))
+    db.session.execute(atelier_uzivatel.insert().values(id_atelier=ateliery[2].id, id_uzivatel=uzivatele[2].id))
     db.session.commit()
     
 # Zkouska funkcnosti CASCADE pri odstraneni zaznamu
