@@ -439,8 +439,21 @@ def search_devices():
     nazev = request.args.get('nazev')
     id_typ = request.args.get('id_typ')
     id_atelier = request.args.get('id_atelier')
-    
-    devices = hledani_zarizeni(nazev=nazev, id_typ=id_typ, id_atelier=id_atelier)
+
+    role = current_user.role
+
+    # TODO: Lze nahradit za přepínač, v případě že by mělo smysl uživatelům a vyučujícím zobrazit všechny zařízení, ne jen ty ze stejného ateliéru
+    if role == 'admin':
+        devices = hledani_zarizeni(nazev, id_typ, id_atelier, current_user.id, pouze_vypujcitelne=False)
+    elif role == 'spravce':
+        devices = hledani_zarizeni(nazev, id_typ, id_atelier, current_user.id, pouze_vypujcitelne=False)
+    elif role == 'vyucujici':
+        devices = hledani_zarizeni(nazev, id_typ, id_atelier, current_user.id, pouze_vypujcitelne=True)
+    elif role == 'uzivatel':
+        devices = hledani_zarizeni(nazev, id_typ, id_atelier, current_user.id, pouze_vypujcitelne=True)
+    else:
+        devices = []
+
     typy = ziskat_vsechny_typy()
     ateliery = seznam_atelieru()
     

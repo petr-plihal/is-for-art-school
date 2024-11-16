@@ -1,5 +1,6 @@
 from datetime import datetime
-from model import db, Uzivatel, Rezervace, Zarizeni, Typ, Atelier
+from model import db, Uzivatel, Rezervace, Zarizeni, Typ, Atelier, zarizeni_uzivatel
+from sqlalchemy import or_
 
 # Pro hashování hesel
 from werkzeug.security import check_password_hash
@@ -46,9 +47,31 @@ def vypujceni_zarizeni(id_zarizeni, id_uzivatele, id_vyucujici, datum_od, datum_
     db.session.add(nova_vypujcka)
     db.session.commit()
 
+# Vrátí všechny ateliéry, ve kterých je uživatel přihlášen
+def ziskat_ateliery_uzivatele(id_uzivatele):
+    uzivatel = Uzivatel.query.get(id_uzivatele)
+    if not uzivatel:
+        return []
+    return uzivatel.ateliery
+
 # Funkce pro vyhledání zařízení podle různých kritérií
-def hledani_zarizeni(nazev=None, id_typ=None, id_atelier=None):
+def hledani_zarizeni(nazev=None, id_typ=None, id_atelier=None, id_uzivatele=None, pouze_vypujcitelne=True):
+    
     zarizeni = Zarizeni.query
+
+    if pouze_vypujcitelne:
+
+        # Uživtel si může vypůjčit pouze zařízení z ateliérů, ve kterých je přihlášen
+        uzivatelovy_ateliery = ziskat_ateliery_uzivatele(id_uzivatele)
+        zarizeni = zarizeni.filter(Zarizeni.id_atelier.in_([atelier.id for atelier in uzivatelovy_ateliery]))
+
+        # Vypůjčitelné zařízení dále musí mít atribut povolené na true, nebo musí existovat záznam o povolení vypůjčení v tabulce zarizeni_uzivatel pro dané zařízení a uživatele
+        zarizeni = zarizeni.outerjoin(zarizeni_uzivatel, Zarizeni.id == zarizeni_uzivatel.c.id_zarizeni).filter(
+            or_(
+                Zarizeni.povolene == True,
+                zarizeni_uzivatel.c.id_uzivatel == id_uzivatele
+            )
+        )
     
     if nazev:
         zarizeni = zarizeni.filter(Zarizeni.nazev.ilike(f"%{nazev}%"))
