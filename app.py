@@ -283,10 +283,8 @@ def zarizeni_pridat():
     vyucujici = Vyucujici.query.filter_by(id=current_user.id).first_or_404()
     typ = Typ.query.all()
     
-    # Získání všech ateliérů, které vyučující vyučuje
-    patri_k_atelieru = db.session.query(atelier_vyucujici).filter_by(id_vyucujici=vyucujici.id_vyucujici).all() # Záznamy ze spojovací tabulky pro vyučujícího
-    id_atelieru = [j_atelier.id_atelier for j_atelier in patri_k_atelieru]                                      # Seznam id ateliérů, které vyučující vyučuje
-    ateliery = Atelier.query.filter(Atelier.id.in_(id_atelieru)).all()                                          # Získání ateliérů podle id z tabulky Ateliéry
+    # Získání všech ateliérů, které vyučující vyučuje, pomocí propojení tabulky Ateliér a atelier_vyucujici
+    ateliery = db.session.query(Atelier).join(atelier_vyucujici, atelier_vyucujici.c.id_atelier == Atelier.id).filter(atelier_vyucujici.c.id_vyucujici == vyucujici.id_vyucujici).all()
     
     if request.method == 'GET':
         return render_template('zarizeni_pridat.html', typ=typ, atelier=ateliery)
@@ -390,18 +388,12 @@ def zarizeni_uzivatele_upravit(id_zarizeni):
     
     zarizeni = Zarizeni.query.filter_by(id=id_zarizeni).first_or_404()
     
-    # Získání všech uživatelů, kteří patří do ateliéru
-    patri_k_atelieru = db.session.query(atelier_uzivatel).filter_by(id_atelier=zarizeni.id_atelier).all()
-    id_atelieru = [j_atelier.id_uzivatel for j_atelier in patri_k_atelieru]
-    uzivatele_atelier = Uzivatel.query.filter(Uzivatel.id.in_(id_atelieru)).all()
-    
+    # Získání všech uživatelů, kteří patří do ateliéru, pomocí propojení tabulky Uživatel a atelier_uzivatel
+    uzivatele_atelier = db.session.query(Uzivatel).join(atelier_uzivatel, atelier_uzivatel.c.id_uzivatel == Uzivatel.id).filter(atelier_uzivatel.c.id_atelier == zarizeni.id_atelier).all()
     # Získání všech uživatelů, na které je vypůjčení omezeno
-    zaznamy = db.session.query(zarizeni_uzivatel).filter_by(id_zarizeni=id_zarizeni).all()
-    zaznamy_id = [zaznam.id_uzivatel for zaznam in zaznamy]
-    uzivatel_zaznamy = Uzivatel.query.filter(Uzivatel.id.in_(zaznamy_id)).all()
-    
+    uzivatel_zaznamy = db.session.query(Uzivatel).join(zarizeni_uzivatel, zarizeni_uzivatel.c.id_uzivatel == Uzivatel.id).filter(zarizeni_uzivatel.c.id_zarizeni == id_zarizeni).all()
     # Oddelani uzivatelu, kteri jsou v tabulce zarizeni_uzivatel
-    uzivatele_atelier = [uzivatel for uzivatel in uzivatele_atelier if uzivatel.id not in zaznamy_id]
+    uzivatele_atelier = [uzivatel for uzivatel in uzivatele_atelier if uzivatel not in uzivatel_zaznamy]
     
     return render_template('zarizeni_uzivatele_upravit.html', zarizeni=zarizeni, uzivatele_atelier=uzivatele_atelier, uzivatel_zaznamy=uzivatel_zaznamy)
 
