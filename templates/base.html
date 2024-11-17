@@ -24,10 +24,13 @@
         <ul>
             <li><a href="{{ url_for('index') }}">Home</a></li>
             {% if current_user.is_authenticated %}
-            <li><a href="{{url_for('logout')}}">Logout</a></li>
+                <li><a href="{{url_for('logout')}}">Logout</a></li>
+                {% if current_user.role == 'vyucujici' %}
+                    <li><a href="{{url_for('vypujcky')}}">Výpůjčky</a></li>
+                {% endif %}
             {% else %}
-            <li><a href="{{url_for('register')}}">Register</a></li>
-                <li><a href="{{url_for('login')}}">Login</a></li>
+                <li><a href="{{url_for('register')}}">Register</a></li>
+                    <li><a href="{{url_for('login')}}">Login</a></li>
             {% endif %}
             <li><a href="{{url_for('profile')}}">Profile</a></li>
             <li><a href="{{url_for('database')}}">Database</a></li>

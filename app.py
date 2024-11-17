@@ -1,7 +1,7 @@
 from flask import Flask, render_template, redirect, url_for, request, session, g, flash
 from flask_login import current_user, login_user, logout_user, LoginManager, login_required
 from flask_bcrypt import Bcrypt
-from model import db, insert_data, delete_one, Uzivatel, Rezervace
+from model import db, insert_data, delete_one, Uzivatel, Rezervace, Zarizeni
 from datetime import timedelta
 from functools import wraps # Dekorátor
 import pymysql
@@ -187,6 +187,72 @@ def test_roles():
 @app.route('/home')
 def home():
     return render_template('home.html')
+
+@app.route('/vypujcky')
+def vypujcky():
+    vypujcky = Rezervace.query.filter_by(id_vyucujici=current_user.id_vyucujici).all()
+    all_users = get_all_users()
+    all_devices = get_all_device()
+    users_devices = get_users_devices()
+    return render_template('vypujcky.html', vypujcky=vypujcky, all_users=all_users, all_devices=all_devices, users_devices=users_devices)
+
+def get_users_devices():
+    devices = Zarizeni.query.filter_by(id_vyucujici=current_user.id_vyucujici).all()
+    return devices
+
+def get_all_device():
+    devices = Zarizeni.query.all()
+    all_devices = {}
+
+    for device in devices:
+        all_devices[device.id] = device.nazev
+
+    return all_devices
+
+def get_all_users():
+    users = Uzivatel.query.all()
+    all_users = {}
+
+    for user in users:
+        all_users[user.id] = user.login
+    
+    return all_users
+
+@app.route('/update_rezervace', methods=['POST'])
+def update_rezervace():
+    reservation_id = request.form.get('reservation_id')
+
+    new_status = request.form.get('status')
+    new_device = request.form.get('device')
+    new_user = request.form.get('user')
+    new_start_date = request.form.get('start_date')
+    new_end_date = request.form.get('end_date')
+    
+    # Aktualizace rezervace
+    reservation = Rezervace.query.get(reservation_id)
+    
+    if new_status != "_NONE_":
+        reservation.stav = new_status
+
+    if new_device != "_NONE_":
+        reservation.zarizeni = Zarizeni.query.get(new_device)
+
+    if new_user:
+        new_user_id = Uzivatel.query.filter_by(login=new_user).first()
+        print(f"tady")
+        if new_user_id is not None:
+            reservation.id_uzivatel = new_user_id.id
+
+    if new_start_date:
+        reservation.datum_od = new_start_date
+
+    if new_end_date:
+        reservation.datum_do = new_end_date
+    
+    db.session.commit()
+    
+    return redirect(url_for('vypujcky'))
+
 
 if __name__ == '__main__':
     app.run(debug=True)
