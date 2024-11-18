@@ -74,7 +74,7 @@ def register():
         login = request.form.get('login')
         password = request.form.get('pwd')
         
-        if Uzivatel.query.filter_by(login=login).first_or_404():
+        if Uzivatel.query.filter_by(login=login).first():
             flash('Uživatel s daným loginem již existuje', 'danger')
             return render_template('auth/register.html')
         
@@ -94,7 +94,7 @@ def login():
         login = request.form.get('login')
         password = request.form.get('pwd')
         
-        user = Uzivatel.query.filter_by(login=login).first_or_404()    # Vyhledavani uzivatele v databazi podle loginu
+        user = Uzivatel.query.filter_by(login=login).first()    # Vyhledavani uzivatele v databazi podle loginu
         if user is None:
             flash('Uzivatel s danym loginem neexsituje', 'danger')
             return render_template('auth/login.html')
@@ -143,7 +143,7 @@ def user_change():
                 return render_template('auth/user_change.html')
                 
         if new_login:
-            if Uzivatel.query.filter_by(login=new_login).first_or_404():
+            if Uzivatel.query.filter_by(login=new_login).first():
                 flash('Uživatel s daným loginem již existuje', 'danger')
                 return render_template('auth/user_change.html')
             current_user.login = new_login
