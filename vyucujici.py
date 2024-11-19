@@ -5,7 +5,7 @@ from model import db, Zarizeni, zarizeni_uzivatel, Vyucujici, Navraceni
 
 #   --- Správa zařízení ---
 # Funkce pro přidání nového zařízení
-def pridat_zarizeni(nazev, id_atelier,rok_vyroby, datum_nakupu, doba_vypujcky, id_typ, id_vyucujici):
+def pridat_zarizeni(nazev, id_atelier, rok_vyroby, datum_nakupu, doba_vypujcky, id_typ, id_vyucujici):
     nove_zarizeni = Zarizeni()
     nove_zarizeni.nazev = nazev
     nove_zarizeni.rok_vyroby = rok_vyroby
@@ -28,7 +28,7 @@ def odstraneni_zarizeni(id_zarizeni):
         db.session.commit()
 
 # Funkce pro aktualizaci existujícího zařízení
-def aktualizace_zarizeni(id_zarizeni, novy_nazev=None, novy_typ=None, datum_nakupu=None, max_doba_vypujcky=None):
+def aktualizace_zarizeni(id_zarizeni, novy_nazev=None, novy_typ=None, rok_vyroby=None, datum_nakupu=None, max_doba_vypujcky=None):
     zarizeni = Zarizeni.query.get(id_zarizeni)
     if zarizeni:
         if novy_nazev:
@@ -37,6 +37,8 @@ def aktualizace_zarizeni(id_zarizeni, novy_nazev=None, novy_typ=None, datum_naku
             zarizeni.id_typ = novy_typ
         if datum_nakupu:
             zarizeni.datum_nakupu = datum_nakupu
+        if rok_vyroby:
+            zarizeni.rok_vyroby = rok_vyroby
         if max_doba_vypujcky:
             zarizeni.max_doba_vypujcky = max_doba_vypujcky
         db.session.commit()
