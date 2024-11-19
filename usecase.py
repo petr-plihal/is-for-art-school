@@ -54,10 +54,20 @@ def ziskat_ateliery_uzivatele(id_uzivatele):
         return []
     return uzivatel.ateliery
 
-# Funkce pro vyhledání zařízení podle různých kritérií
-def hledani_zarizeni(nazev=None, id_typ=None, id_atelier=None, id_uzivatele=None, pouze_vypujcitelne=True):
-    
+''' 
+    Funkce pro vyhledání zařízení podle různých kritérií
+
+    V případě zadání id_zarizeni, vrátí jeden záznam, místo seznamu, nehledě na další parametry
+
+    Všechny parametry jsou nepovinné -> ve výchozím volání vrátí všechna zařízení
+'''
+def hledani_zarizeni(id_zarizeni=None, nazev=None, id_typ=None, id_atelier=None, id_uzivatele=None, pouze_vypujcitelne=False):
     zarizeni = Zarizeni.query
+
+    # id_zarizeni je primární klíč -> více jak jeden záznam nemůže existovat
+    if id_zarizeni:
+        zarizeni = zarizeni.filter_by(id=id_zarizeni)
+        return zarizeni.first()
 
     if pouze_vypujcitelne:
 
