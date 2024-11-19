@@ -4,7 +4,7 @@ from flask_bcrypt import Bcrypt
 
 from model import db, insert_data, delete_one, Uzivatel, Rezervace
 
-from usecase import hledani_zarizeni, ziskat_vsechny_typy, seznam_atelieru, sledovani_vypujcek
+from usecase import hledani_zarizeni, ziskat_vsechny_typy, seznam_atelieru, sledovani_vypujcek, zjisteni_stavu_zarizeni, muze_vypujcit_zarizeni, ziskat_aktivni_vypujcky, ziskat_vracene_vypujcky
 
 from datetime import timedelta
 from functools import wraps # Dekorátor
@@ -203,20 +203,29 @@ def search_devices():
 
     # TODO: Lze nahradit za přepínač, v případě že by mělo smysl uživatelům a vyučujícím zobrazit všechny zařízení, ne jen ty ze stejného ateliéru
     if role == 'admin':
-        devices = hledani_zarizeni(nazev, id_typ, id_atelier, current_user.id, pouze_vypujcitelne=False)
+        zarizeni_seznam = hledani_zarizeni(nazev=nazev, id_typ=id_typ, id_atelier=id_atelier, id_uzivatele=current_user.id, pouze_vypujcitelne=False)
     elif role == 'spravce':
-        devices = hledani_zarizeni(nazev, id_typ, id_atelier, current_user.id, pouze_vypujcitelne=False)
+        zarizeni_seznam = hledani_zarizeni(nazev=nazev, id_typ=id_typ, id_atelier=id_atelier, id_uzivatele=current_user.id, pouze_vypujcitelne=False)
     elif role == 'vyucujici':
-        devices = hledani_zarizeni(nazev, id_typ, id_atelier, current_user.id, pouze_vypujcitelne=True)
+        zarizeni_seznam = hledani_zarizeni(nazev=nazev, id_typ=id_typ, id_atelier=id_atelier, id_uzivatele=current_user.id, pouze_vypujcitelne=True)
     elif role == 'uzivatel':
-        devices = hledani_zarizeni(nazev, id_typ, id_atelier, current_user.id, pouze_vypujcitelne=True)
+        zarizeni_seznam = hledani_zarizeni(nazev=nazev, id_typ=id_typ, id_atelier=id_atelier, id_uzivatele=current_user.id, pouze_vypujcitelne=True)
     else:
-        devices = []
+        zarizeni_seznam = []
+
+    # Přidání atributu pro tlačítko
+    for zarizeni in zarizeni_seznam:
+        if zjisteni_stavu_zarizeni(zarizeni.id, current_user.id) == "Vypujceno":
+            zarizeni.akce = "zobrazit_vypujcku"
+        elif muze_vypujcit_zarizeni(zarizeni.id, current_user.id):
+            zarizeni.akce = "rezervovat"
+        else:
+            zarizeni.akce = ""
 
     typy = ziskat_vsechny_typy()
     ateliery = seznam_atelieru()
     
-    return render_template('user/search_devices.html', devices=devices, typy=typy, ateliery=ateliery)
+    return render_template('user/search_devices.html', zarizeni_seznam=zarizeni_seznam, typy=typy, ateliery=ateliery)
 
 @app.route('/my_devices')
 @login_required
