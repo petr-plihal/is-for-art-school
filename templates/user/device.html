@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block head %}
+    <title>Detail zařízení</title>
+{% endblock %}
+
+{% block navbar %}
+{% endblock %}
+
+{% block body %}
+    <h1>Detail zařízení</h1>
+    <p><strong>Název:</strong> {{ zarizeni.nazev }}</p>
+    <p><strong>Rok výroby:</strong> {{ zarizeni.rok_vyroby.strftime('%Y-%m-%d') if zarizeni.rok_vyroby else 'N/A' }}</p>
+    <p><strong>Datum nákupu:</strong> {{ zarizeni.datum_nakupu.strftime('%Y-%m-%d') if zarizeni.datum_nakupu else 'N/A' }}</p>
+    <p><strong>Maximální doba výpůjčky:</strong> {{ zarizeni.max_doba_vypujcky }} dní</p>
+    <p><strong>Povoleno:</strong> {{ 'Ano' if zarizeni.povolene else 'Ne' }}</p>
+    <p><strong>Ateliér:</strong> {{ zarizeni.atelier.nazev }}</p>
+    <p><strong>Typ:</strong> {{ zarizeni.typ.nazev }}</p>
+    <p><strong>Vyučující:</strong> {{ zarizeni.vyucujici.login }}</p>
+
+    {% if zarizeni.akce == "zobrazit_vypujcku" %}
+    <a href="{{ url_for('my_borrows') }}"><button>Zobrazit výpůjčku</button></a>
+    {% elif zarizeni.akce == "rezervovat" %}
+        <button>Rezervovat</button>
+    {% else %}
+        Není k dispozici
+    {% endif %}
+
+{% endblock %}
