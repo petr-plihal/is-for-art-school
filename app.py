@@ -227,11 +227,64 @@ def search_devices():
     
     return render_template('user/search_devices.html', zarizeni_seznam=zarizeni_seznam, typy=typy, ateliery=ateliery)
 
-@app.route('/my_devices')
+@app.route('/my_borrows')
 @login_required
-def my_devices():
-    borrow = sledovani_vypujcek(current_user.id)
-    return render_template('user/my_devices.html', borrow=borrow)
+def my_borrows():
+    aktivni = ziskat_aktivni_vypujcky(current_user.id)
+    vracene = ziskat_vracene_vypujcky(current_user.id)
+    return render_template('user/my_borrows.html', aktivni=aktivni, vracene=vracene)
+
+'''
+@app.route('/device/<int:device_id>/reserve', methods=['POST'])
+@login_required
+def reserve_device(id):
+    # Získání dat z formuláře
+    start_time = request.form.get('start_time')
+    end_time = request.form.get('end_time')
+    user_id = session.get('user_id')  # ID uživatele ze session
+
+    # Kontrola oprávnění uživatele
+    if not user_has_permission(user_id, device_id):
+        flash('Nemáte oprávnění rezervovat toto zařízení.', 'error')
+        return redirect(url_for('device_detail', device_id=device_id))
+
+    # Validace času rezervace
+    if not is_valid_reservation_time(start_time, end_time, device_id):
+        flash('Rezervace není možná ve zvoleném čase.', 'error')
+        return redirect(url_for('device_detail', device_id=device_id))
+
+    # Vytvoření rezervace
+    new_reservation = Rezervace(
+        user_id=user_id,
+        device_id=device_id,
+        start_time=start_time,
+        end_time=end_time
+    )
+    db.session.add(new_reservation)
+    db.session.commit()
+
+    flash('Zařízení bylo úspěšně rezervováno.', 'success')
+    return redirect(url_for('device_detail', device_id=device_id))
+'''
+
+@app.route('/device/<int:device_id>')
+@login_required
+def device(device_id):
+
+    zarizeni = hledani_zarizeni(id_zarizeni=device_id)
+
+    if not zarizeni:
+        flash('Zařízení nebylo nalezeno', 'danger')
+        return redirect(url_for('search_devices'))
+
+    if zjisteni_stavu_zarizeni(zarizeni.id, current_user.id) == "Vypujceno":
+        zarizeni.akce = "zobrazit_vypujcku"
+    elif muze_vypujcit_zarizeni(zarizeni.id, current_user.id):
+        zarizeni.akce = "rezervovat"
+    else:
+        zarizeni.akce = ""
+
+    return render_template('user/device.html', zarizeni=zarizeni)
 
 if __name__ == '__main__':
     app.run(debug=True)
