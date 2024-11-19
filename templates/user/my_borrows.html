@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block head %}
+    <title>Moje vypůjčená zařízení</title>
+{% endblock %}
+
+{% block navbar %}
+{% endblock %}
+
+{% block body %}
+
+    <h1>Aktivní výpůjčky</h1>
+    {% set vypujcky_seznam = aktivni %}
+    {% include 'borrow_table_template.html' %}
+
+    <h1>Historické výpůjčky</h1>
+    {% set vypujcky_seznam = vracene %}
+    {% include 'borrow_table_template.html' %}
+
+{% endblock %}

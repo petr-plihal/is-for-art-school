@@ -41,14 +41,24 @@
                 <th>Název</th>
                 <th>Typ</th>
                 <th>Ateliér</th>
+                <th>Akce</th>
             </tr>
         </thead>
         <tbody>
-            {% for device in devices %}
+            {% for zarizeni in zarizeni_seznam %}
             <tr>
-                <td>{{ device.nazev }}</td>
-                <td>{{ device.typ.nazev }}</td>
-                <td>{{ device.atelier.nazev }}</td>
+                <td><a href="{{ url_for('device', device_id=zarizeni.id) }}">{{ zarizeni.nazev }}</a></td>
+                <td>{{ zarizeni.typ.nazev }}</td>
+                <td>{{ zarizeni.atelier.nazev }}</td>
+                <td>
+                    {% if zarizeni.akce == "zobrazit_vypujcku" %}
+                        <a href="{{ url_for('my_borrows') }}"><button>Zobrazit výpůjčku</button></a>
+                    {% elif zarizeni.akce == "rezervovat" %}
+                        <button>Rezervovat</button>
+                    {% else %}
+                        Není k dispozici
+                    {% endif %}
+                </td>
             </tr>
             {% endfor %}
         </tbody>
