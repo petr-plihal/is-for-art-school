@@ -21,15 +21,27 @@ def upraveni_profilu(id_uzivatele, novy_login=None, nove_heslo=None):
 def sledovani_vypujcek(id_uzivatele):
     return Rezervace.query.filter_by(id_uzivatel=id_uzivatele).all()
 
+# Vrátí všechny aktivní výpůjčky uživatele (-> stav "Rezervováno" nebo "Vypůjčeno")
+def ziskat_aktivni_vypujcky(id_uzivatele):
+    return Rezervace.query.filter_by(id_uzivatel=id_uzivatele).filter(Rezervace.stav.in_(["Rezervováno", "Vypůjčeno"])).all()
+
+# Vrátí všechny výpůjčky uživatele, které již byly vráceny (-> stav "Vraceno")
+def ziskat_vracene_vypujcky(id_uzivatele):
+    return Rezervace.query.filter_by(id_uzivatel=id_uzivatele).filter(Rezervace.stav == "Vraceno").all()
+
 # Funkce pro rezervaci zařízení (funkce nekontroluje, zda není zařízení již rezervováno)
-def rezervace_zarizeni(id_zarizeni, id_uzivatele, id_vyucujici, datum_od, datum_do):
+def rezervace_zarizeni(id_zarizeni, id_uzivatele, datum_od, datum_do):
+    
+    # TODO: Kontrola, zda je zařízení vůbec vypůjčitelné daným uživatelem (? je třeba když bude kontrola v app.py fci ?)
+
     nova_rezervace = Rezervace(
         stav="Rezervováno",
         datum_od=datum_od,
         datum_do=datum_do,
         id_zarizeni=id_zarizeni,
         id_uzivatel=id_uzivatele,
-        id_vyucujici=id_vyucujici
+        # Jen vyučující co zařízení vlastní, ho může vypůjčovat ne?
+        id_vyucujici=id_zarizeni.id_vyucujici
     )
     db.session.add(nova_rezervace)
     db.session.commit()
@@ -46,6 +58,27 @@ def vypujceni_zarizeni(id_zarizeni, id_uzivatele, id_vyucujici, datum_od, datum_
     )
     db.session.add(nova_vypujcka)
     db.session.commit()
+
+# Zjistí stav konkrétního zařízení (Rezervováno, Vypujceno, Vraceno) pro daného uživatele
+def zjisteni_stavu_zarizeni(id_zarizeni, id_uzivatele):
+    rezervace = Rezervace.query.filter_by(id_zarizeni=id_zarizeni, id_uzivatel=id_uzivatele).first()
+    if rezervace:
+        return rezervace.stav
+    return None
+
+# Určí, zda si uživatel může vypůjčit dané zařízení
+def muze_vypujcit_zarizeni(id_zarizeni, id_uzivatele):
+
+    zarizeni = Zarizeni.query.get(id_zarizeni)
+
+    # Uživatel musí být v ateliéru, ve kterém je zařízení
+    if zarizeni and zarizeni.id_atelier in [atelier.id for atelier in ziskat_ateliery_uzivatele(id_uzivatele)]:
+
+        # Dále musí být zařízení povolené, nebo musí existovat záznam o povolení v tabulce zarizeni_uzivatel pro dané zařízení a uživatele
+        if zarizeni.povolene or zarizeni_uzivatel.query.filter_by(id_zarizeni=id_zarizeni, id_uzivatel=id_uzivatele).first():
+            return True
+
+    return False
 
 # Vrátí všechny ateliéry, ve kterých je uživatel přihlášen
 def ziskat_ateliery_uzivatele(id_uzivatele):
