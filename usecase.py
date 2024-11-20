@@ -32,20 +32,23 @@ def ziskat_vracene_vypujcky(id_uzivatele):
 # Funkce pro rezervaci zařízení (funkce nekontroluje, zda není zařízení již rezervováno)
 def rezervace_zarizeni(id_zarizeni, id_uzivatele, datum_od, datum_do):
     
-    # TODO: Kontrola, zda je zařízení vůbec vypůjčitelné daným uživatelem (? je třeba když bude kontrola v app.py fci ?)
+    # TODO: Měla by být kontrola na vypůjčítelnost zařízení tady, nebo v app.py?
+
+    zarizeni = Zarizeni.query.get(id_zarizeni)
 
     nova_rezervace = Rezervace(
-        stav="Rezervováno",
+        stav="Rezervovano",
         datum_od=datum_od,
         datum_do=datum_do,
         id_zarizeni=id_zarizeni,
         id_uzivatel=id_uzivatele,
-        # Jen vyučující co zařízení vlastní, ho může vypůjčovat ne?
-        id_vyucujici=id_zarizeni.id_vyucujici
+        # id_zarizeni je předáno jako číslo, ne objekt -> nelze se odkazovat na parametry objektu, nejdřív se můsí získát objekt
+        #id_vyucujici=id_zarizeni.id_vyucujici
+        id_vyucujici=zarizeni.id_vyucujici
     )
     db.session.add(nova_rezervace)
     db.session.commit()
-    
+
 # Funkce pro vypůjčení zařízení (funkce nekontroluje, zda není zařízení již vypůjčeno)
 def vypujceni_zarizeni(id_zarizeni, id_uzivatele, id_vyucujici, datum_od, datum_do):
     nova_vypujcka = Rezervace(
@@ -67,7 +70,8 @@ def zjisteni_stavu_zarizeni(id_zarizeni, id_uzivatele):
     return None
 
 # Určí, zda si uživatel může vypůjčit dané zařízení
-def muze_vypujcit_zarizeni(id_zarizeni, id_uzivatele):
+# TODO: oddělit moze_rezervovat_zarizeni a muze_zobrazit_zarizeni (I když zařízení není povoleno, může být zobrazeno)
+def muze_rezervovat_zarizeni(id_zarizeni, id_uzivatele):
 
     zarizeni = Zarizeni.query.get(id_zarizeni)
 
@@ -79,6 +83,48 @@ def muze_vypujcit_zarizeni(id_zarizeni, id_uzivatele):
             return True
 
     return False
+
+# Určí, zda si uživatel může vypůjčit dané zařízení - z hlediska kolizí s jinými rezervacemi a logikou časových intervalů
+def je_validni_datum_rezervace(datum_od, datum_do, id_zarizeni):
+    '''
+    - Pro datum musí platit: (je_validni_datum_rezervace())
+        - Ani jedno z datumů nesmí být prázdné, nebo v minulosti
+        - Data nemůžou být stejná
+        - Datum začátku musí být dříve než datum konce
+        - Počet dní, do kterých zařízení zasahuje, nesmí být větší než maximální počet dní, na které lze zařízení vypůjčit
+        - Rezervace nesmí být v konfliktu s jinou rezervací
+
+    TODO: nějáké zprávy o tom, co je na datu špatně
+    '''
+    if not datum_od or not datum_do:
+        return False
+    
+    # Kontrola, zda datum_od a datum_do nejsou v minulosti
+    if datum_od < datetime.now() or datum_do < datetime.now():
+        return False
+    
+    # Kontrola, zda datum_od a datum_do nejsou stejné
+    if datum_od == datum_do:
+        return False
+    
+    # Kontrola, zda datum_od je menší než datum_do
+    if datum_od >= datum_do:
+        return False
+    
+    # Kontrola, zda rezervace nepřesahuje maximální počet dní, na které lze zařízení vypůjčit
+    zarizeni = Zarizeni.query.get(id_zarizeni)
+    if (datum_do - datum_od).days > zarizeni.max_doba_vypujcky:
+        return False
+    
+    # Kontorla, zda rezervace není v konfliktu s jinou rezervací - berou se v pouze rezervace, které nemají stav Vraceno
+    rezervace = Rezervace.query.filter_by(id_zarizeni=id_zarizeni).filter(Rezervace.stav != "Vraceno").all()
+
+    for r in rezervace:
+        if r.datum_od < datum_do and r.datum_do > datum_od:
+            return False
+    
+
+    return True
 
 # Vrátí všechny ateliéry, ve kterých je uživatel přihlášen
 def ziskat_ateliery_uzivatele(id_uzivatele):
