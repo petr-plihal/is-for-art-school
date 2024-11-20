@@ -1,7 +1,7 @@
 from flask import Flask, render_template, redirect, url_for, request, session, g, flash
 from flask_login import current_user, login_user, logout_user, LoginManager, login_required
 from flask_bcrypt import Bcrypt
-from model import db, insert_data, delete_one, Uzivatel, Rezervace, Zarizeni
+from model import db, insert_data, delete_one, Uzivatel, Rezervace, Zarizeni, Spravce, Typ, Atelier, Vyucujici, atelier_vyucujici
 from datetime import timedelta
 from functools import wraps # Dekorátor
 import pymysql
@@ -223,8 +223,6 @@ def update_rezervace():
     reservation_id = request.form.get('reservation_id')
 
     new_status = request.form.get('status')
-    new_device = request.form.get('device')
-    new_user = request.form.get('user')
     new_start_date = request.form.get('start_date')
     new_end_date = request.form.get('end_date')
     
@@ -233,15 +231,6 @@ def update_rezervace():
     
     if new_status != "_NONE_":
         reservation.stav = new_status
-
-    if new_device != "_NONE_":
-        reservation.zarizeni = Zarizeni.query.get(new_device)
-
-    if new_user:
-        new_user_id = Uzivatel.query.filter_by(login=new_user).first()
-        print(f"tady")
-        if new_user_id is not None:
-            reservation.id_uzivatel = new_user_id.id
 
     if new_start_date:
         reservation.datum_od = new_start_date
@@ -253,6 +242,145 @@ def update_rezervace():
     
     return redirect(url_for('vypujcky'))
 
+@app.route('/atelier')
+def atelier():
+    # Funguje pouze pokud má správce pouze jeden atelier, pro víc dodělám
+    atelier = current_user.ateliery
+
+    # --- Typy ---
+    typy = Typ.query.all()
+    
+    # --- Vyučující ---
+    vsichni_vyucujici = Vyucujici.query.all()
+
+    vyucujici_atelieru = []
+    j = 0
+    for a in atelier:
+        vyucujici_atelieru.append([])
+        for ucitel in vsichni_vyucujici:
+            ateliery = ucitel.ateliery
+            for i in ateliery:
+                if i.id == a.id:
+                    vyucujici_atelieru[j].append(ucitel)
+        j = j + 1
+    
+    # --- Uživatelé ---
+    vsichni_uzivatele = Uzivatel.query.all()
+
+    uzivatele_atelieru = []
+    j = 0
+    for a in atelier:
+        uzivatele_atelieru.append([])
+        for uzivatel in vsichni_uzivatele:
+            ateliery = uzivatel.ateliery
+            for i in ateliery:
+                if i.id == a.id:
+                    uzivatele_atelieru[j].append(uzivatel)
+        j = j + 1
+    
+    return render_template('atelier.html', typy=typy, ateliery=atelier, vyucujici=vyucujici_atelieru, uzivatele=uzivatele_atelieru)
+
+@app.route('/smazani_typu', methods=["POST"])
+def smazani_typu():
+    smazat = request.form.get('smazat_typ')
+    
+    typ = Typ.query.filter_by(nazev=smazat).first()
+    db.session.delete(typ)
+    db.session.commit()
+
+    return redirect(url_for('atelier'))
+
+@app.route('/pridani_typu', methods=["POST"])
+def pridani_typu():
+    nazev = request.form.get('nazev')
+    
+    typ = Typ(nazev=nazev)
+    db.session.add(typ)
+    db.session.commit()
+
+    return redirect(url_for('atelier'))
+
+@app.route('/smazani_vyucujiciho', methods=["POST"])
+def smazani_vyucujiciho():
+    id_vyucujici = request.form.get('smazat_vyucujiciho')
+    id_atelieru = request.form.get('id_atelieru')
+
+    vyucujici = Vyucujici.query.get(id_vyucujici)
+    atelier = Atelier.query.get(id_atelieru)
+    
+    if vyucujici in atelier.ucitele:
+        atelier.ucitele.remove(vyucujici)
+        db.session.commit()
+
+    return redirect(url_for('atelier'))
+
+@app.route('/pridani_vyucujiciho', methods=["POST"])
+def pridani_vyucujiciho():
+    login = request.form.get('login')
+    vyucujici = Vyucujici.query.filter_by(login=login).first()
+    id_atelieru = request.form.get('id_atelieru')
+    atelier = Atelier.query.get(id_atelieru)
+    
+    if vyucujici:
+        if vyucujici not in atelier.ucitele:
+            atelier.ucitele.append(vyucujici)
+            db.session.commit()
+    else:
+        uzivatel = Uzivatel.query.filter_by(login=login).first()
+        if uzivatel:
+            id_uzivatele = uzivatel.id
+            # Změna role uživatele na "vyucujici"
+            uzivatel.role = "vyucujici"
+            db.session.commit()
+
+            from sqlalchemy import text
+            # Vytvoření nového záznamu v tabulce Vyucujici
+            stmt = text("INSERT INTO vyucujici (id) VALUES (:id)")
+            db.session.execute(stmt, {"id": uzivatel.id})
+            db.session.commit()
+
+            # Odstranění objektu Uzivatel z paměti, aby byl znovu načten
+            del uzivatel
+
+            # Znovu načtení uživatele jako vyučujícího
+            vyucujici = db.session.query(Vyucujici).filter_by(id=id_uzivatele).first()
+
+            # Propojení vyučujícího a ateliéru
+            db.session.execute(atelier_vyucujici.insert().values(id_atelier=id_atelieru, id_vyucujici=vyucujici.id_vyucujici))
+            db.session.commit()
+    # Pokud je zadán login, který není vyučující, ale je uživatel, pak vytvoří nový záznam vyučujícího z uživatele
+    # (id_vyucujiciho se vytvoří samo autoincrementem)
+
+    return redirect(url_for('atelier'))
+
+@app.route('/smazani_uzivatele', methods=["POST"])
+def smazani_uzivatele():
+    id_uzivatele = request.form.get('smazat_uzivatele')
+    id_atelieru = request.form.get('id_atelieru')
+
+    uzivatel = Uzivatel.query.get(id_uzivatele)
+    atelier = Atelier.query.get(id_atelieru)
+    
+    if uzivatel in atelier.uzivatele:
+        atelier.uzivatele.remove(uzivatel)
+        db.session.commit()
+
+    return redirect(url_for('atelier'))
+
+@app.route('/pridani_uzivatele', methods=["POST"])
+def pridani_uzivatele():
+    login = request.form.get('login')
+    uzivatel = Uzivatel.query.filter_by(login=login).first()
+    id_atelieru = request.form.get('id_atelieru')
+    atelier = Atelier.query.get(id_atelieru)
+    
+    if uzivatel:
+        if uzivatel.role == "uzivatel":
+            if uzivatel not in atelier.uzivatele:
+                atelier.uzivatele.append(uzivatel)
+                db.session.commit()
+
+    return redirect(url_for('atelier'))
 
 if __name__ == '__main__':
     app.run(debug=True)

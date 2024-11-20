@@ -27,6 +27,8 @@
                 <li><a href="{{url_for('logout')}}">Logout</a></li>
                 {% if current_user.role == 'vyucujici' %}
                     <li><a href="{{url_for('vypujcky')}}">Výpůjčky</a></li>
+                {% elif current_user.role == 'spravce' %}
+                    <li><a href="{{url_for('atelier')}}">Atelier</a></li>
                 {% endif %}
             {% else %}
                 <li><a href="{{url_for('register')}}">Register</a></li>

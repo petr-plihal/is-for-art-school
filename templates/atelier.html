@@ -1,0 +1,77 @@
+{%extends "base.html"%}
+
+{% block head %}
+    <title>Atelier</title>
+{% endblock %}
+
+{% block navbar %}
+{% endblock %}
+
+{% block body %}
+    {% for atelier in ateliery %}
+        <h1>Atelier: {{ atelier.nazev }}</h1>
+        <!-- Přidat for loop (pravděpodobně, pokud nevymyslím lepší řešení) na projití všech atelireru, který správce 
+        spravuje. Zatím funguje pouze na první v poli -->
+        <h1>Tvoje spravované zařízení:</h1>
+
+        <ul>
+            {% for typ in typy %}
+                <li> {{ typ.nazev }}
+                    <form method="POST" action="/smazani_typu">
+                        <button value="{{ typ.nazev }}" id="smazat_typ" name="smazat_typ">Smazat</button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+
+        <h2>Přidat nový typ</h2>
+        <form method="POST" action="/pridani_typu">
+            <input id="nazev" name="nazev" type="text" placeholder="Název zařízení">
+            <button type="submit">Přidat</button>
+        </form>
+
+        <h1>Vyučující v atelieru</h1>
+
+        <ul>
+            {% for ucitel in vyucujici[loop.index0] %}
+                <li> {{ ucitel.login }}
+                    <form method="POST" action="/smazani_vyucujiciho">
+                        <!-- skrytý komentář kvůli funkčnosti -->
+                        <input type="hidden" id="id_atelieru" name="id_atelieru" value="{{atelier.id}}">
+                        <button value="{{ ucitel.id }}" id="smazat_vyucujiciho" name="smazat_vyucujiciho">Smazat</button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+
+        <h2>Přidat nového vyučujícího do atelieru</h2>
+        <form method="POST" action="/pridani_vyucujiciho">
+            <!-- skrytý komentář kvůli funkčnosti -->
+            <input type="hidden" id="id_atelieru" name="id_atelieru" value="{{atelier.id}}">
+            <input id="login" name="login" type="text" placeholder="Login vyučujícího">
+            <button type="submit">Přidat</button>
+        </form>
+
+        <h1>Uživatelé v atelieru</h1>
+        
+        <ul>
+            {% for uzivatel in uzivatele[loop.index0] %}
+                <li> {{ uzivatel.login }}
+                    <form method="POST" action="/smazani_uzivatele">
+                        <!-- skrytý komentář kvůli funkčnosti -->
+                        <input type="hidden" id="id_atelieru" name="id_atelieru" value="{{atelier.id}}">
+                        <button value="{{ uzivatel.id }}" id="smazat_uzivatele" name="smazat_uzivatele">Smazat</button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+
+        <h2>Přidat nového uživatele do atelieru</h2>
+        <form method="POST" action="/pridani_uzivatele">
+            <!-- skrytý komentář kvůli funkčnosti -->
+            <input type="hidden" id="id_atelieru" name="id_atelieru" value="{{atelier.id}}">
+            <input id="login" name="login" type="text" placeholder="Login uživatele">
+            <button type="submit">Přidat</button>
+        </form>
+    {% endfor %}
+{% endblock %}

@@ -27,18 +27,6 @@
                         <option value="Vraceno">Vraceno</option>
                     </select>
 
-                    <!-- Staticky vložené data (id a název zařízení) -->
-                    <label for="device">Změnit zařízení:</label>
-                    <select id="device" name="device" required>
-                        <option value="_NONE_">Vybrat</option>
-
-                        {% for device in users_devices %}
-                            <option value="{{ device.id }}">{{ device.nazev }}</option>
-                        {% endfor %}
-                    </select>
-
-                    <input id="user" name="user" type="text" placeholder="Změnit uživatele">
-
                     <input id="start_date" name="start_date" type="date" placeholder="Změnit začátek">
                     <input id="end_date" name="end_date" type="date" placeholder="Změnit konec">
                 

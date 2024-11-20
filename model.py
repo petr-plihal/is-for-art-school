@@ -61,8 +61,8 @@ class Uzivatel(db.Model, UserMixin):
     
 class Vyucujici(Uzivatel):
     __tablename__ = 'vyucujici'
-    id = db.Column(db.Integer, db.ForeignKey('uzivatel.id', ondelete='CASCADE'), primary_key=True)
-    id_vyucujici = db.Column(db.Integer, nullable=False, autoincrement=True, unique=True)
+    id = db.Column(db.Integer, db.ForeignKey('uzivatel.id', ondelete='CASCADE'))
+    id_vyucujici = db.Column(db.Integer, nullable=False, primary_key=True)
     
     ateliery = db.relationship('Atelier', secondary=atelier_vyucujici, back_populates='ucitele')
     zarizeni = db.relationship('Zarizeni', back_populates='vyucujici', passive_deletes=True)
