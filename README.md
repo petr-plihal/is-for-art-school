@@ -36,7 +36,7 @@ Pri pouzivani googlecloud databaze by to melo bezet bez problemu, ale pokud bude
 - aaa
 
 #### Export závislostí
-`pip freeze > requirements.txt`
+`pip3 freeze > requirements.txt`
 
 #### Import závislostí
-`pip install -r requirements.txt`
+`pip3 install -r requirements.txt`
