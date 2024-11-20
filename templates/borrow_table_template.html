@@ -13,6 +13,7 @@
     <tbody>
         {% for vypujcka in vypujcky_seznam %}
         <tr>
+            <td><a href="{{ url_for('device', device_id=vypujcka.zarizeni.id) }}">{{ vypujcka.zarizeni.nazev }}</a></td>
             <td>{{ vypujcka.zarizeni.nazev }}</td>
             <td>{{ vypujcka.stav }}</td>
             <td>{{ vypujcka.datum_od.strftime('%Y-%m-%d') }}</td>

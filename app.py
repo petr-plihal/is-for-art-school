@@ -4,7 +4,9 @@ from flask_bcrypt import Bcrypt
 
 from sqlalchemy import or_
 
-from usecase import hledani_zarizeni, ziskat_vsechny_typy, seznam_atelieru, sledovani_vypujcek, zjisteni_stavu_zarizeni, muze_vypujcit_zarizeni, ziskat_aktivni_vypujcky, ziskat_vracene_vypujcky
+from datetime import datetime
+
+from usecase import hledani_zarizeni, ziskat_vsechny_typy, seznam_atelieru, sledovani_vypujcek, zjisteni_stavu_zarizeni, muze_rezervovat_zarizeni, ziskat_aktivni_vypujcky, ziskat_vracene_vypujcky, je_validni_datum_rezervace, rezervace_zarizeni
 
 from datetime import timedelta, date, datetime
 from functools import wraps # Dekorátor
@@ -458,7 +460,7 @@ def search_devices():
     for zarizeni in zarizeni_seznam:
         if zjisteni_stavu_zarizeni(zarizeni.id, current_user.id) == "Vypujceno":
             zarizeni.akce = "zobrazit_vypujcku"
-        elif muze_vypujcit_zarizeni(zarizeni.id, current_user.id):
+        elif muze_rezervovat_zarizeni(zarizeni.id, current_user.id):
             zarizeni.akce = "rezervovat"
         else:
             zarizeni.akce = ""
@@ -475,38 +477,52 @@ def my_borrows():
     vracene = ziskat_vracene_vypujcky(current_user.id)
     return render_template('user/my_borrows.html', aktivni=aktivni, vracene=vracene)
 
-'''
+
 @app.route('/device/<int:device_id>/reserve', methods=['POST'])
 @login_required
-def reserve_device(id):
-    # Získání dat z formuláře
-    start_time = request.form.get('start_time')
-    end_time = request.form.get('end_time')
-    user_id = session.get('user_id')  # ID uživatele ze session
+def reserve_device(device_id):
+    '''
+    Aby šlo zařízení rezervovat, musí být splněny následující podmínky:
+    - Uživatel musí být přihlášen (@login_required)
+    - Uživatel musí mít oprávnění k rezervaci zařízení (muze_rezervovat_zarizeni())
+    
+    - Pro datum musí platit: (je_validni_rezervace())
+        - Ani jedno z datumů nesmí být prázdné, nebo v minulosti
+        - Data nemůžou být stejná
+        - Datum začátku musí být dříve než datum konce
+        - Rezervace nesmí být v konfliktu s jinou rezervací
 
-    # Kontrola oprávnění uživatele
-    if not user_has_permission(user_id, device_id):
-        flash('Nemáte oprávnění rezervovat toto zařízení.', 'error')
-        return redirect(url_for('device_detail', device_id=device_id))
+    Detaily/rozšíření/nice to have:
+        - Datum začátku musí být alespoň o X minut/hodin/dní později než aktuální čas
+
+    '''
+    # Získání dat z formuláře
+    datum_od = request.form.get('datum_od')
+    datum_od = datetime.strptime(datum_od, '%Y-%m-%dT%H:%M')
+
+    datum_do = request.form.get('datum_do')
+    datum_do = datetime.strptime(datum_do, '%Y-%m-%dT%H:%M')
+
+    id_uzivatele = current_user.id
+    id_zarizeni = device_id
+
+    # Kontrola oprávnění uživatele k rezervaci/vypůjčení zařízení
+    if not muze_rezervovat_zarizeni(id_zarizeni=id_zarizeni, id_uzivatele=id_uzivatele):
+        flash('Nemáte oprávnění rezervovat toto zařízení.', 'danger')
+        return redirect(url_for('device', device_id=device_id))
 
     # Validace času rezervace
-    if not is_valid_reservation_time(start_time, end_time, device_id):
-        flash('Rezervace není možná ve zvoleném čase.', 'error')
-        return redirect(url_for('device_detail', device_id=device_id))
+    if not je_validni_datum_rezervace(datum_od=datum_od, datum_do=datum_do, id_zarizeni=id_zarizeni):
+        flash('Rezervace není možná ve zvoleném čase.', 'danger')
+        return redirect(url_for('device', device_id=device_id))
 
     # Vytvoření rezervace
-    new_reservation = Rezervace(
-        user_id=user_id,
-        device_id=device_id,
-        start_time=start_time,
-        end_time=end_time
-    )
-    db.session.add(new_reservation)
-    db.session.commit()
+    rezervace_zarizeni(id_zarizeni=id_zarizeni, id_uzivatele=id_uzivatele, datum_od=datum_od, datum_do=datum_do)
+    
+    zarizeni = hledani_zarizeni(id_zarizeni=id_zarizeni)
+    flash(f'Zařízení "{zarizeni.nazev}" bylo úspěšně rezervováno od {datum_od.strftime("%Y-%m-%d %H:%M")} do {datum_do.strftime("%Y-%m-%d %H:%M")}.', 'success')
+    return redirect(url_for('device', device_id=device_id))
 
-    flash('Zařízení bylo úspěšně rezervováno.', 'success')
-    return redirect(url_for('device_detail', device_id=device_id))
-'''
 
 @app.route('/device/<int:device_id>')
 @login_required
@@ -520,12 +536,17 @@ def device(device_id):
 
     if zjisteni_stavu_zarizeni(zarizeni.id, current_user.id) == "Vypujceno":
         zarizeni.akce = "zobrazit_vypujcku"
-    elif muze_vypujcit_zarizeni(zarizeni.id, current_user.id):
+    if zjisteni_stavu_zarizeni(zarizeni.id, current_user.id) == "Rezervovano":
+        zarizeni.akce = "zobrazit_rezervaci"
+    elif muze_rezervovat_zarizeni(zarizeni.id, current_user.id):
+        # TODO: Nemělo by být odepřeno zobrazení? Admin nemusí mít možnost si cokoli vypůjčit
         zarizeni.akce = "rezervovat"
     else:
         zarizeni.akce = ""
 
-    return render_template('user/device.html', zarizeni=zarizeni)
+    aktualni_datum_cas = datetime.now().strftime('%Y-%m-%d %H:%M')
+
+    return render_template('user/device.html', zarizeni=zarizeni, aktualni_datum_cast=aktualni_datum_cas)
 
 if __name__ == '__main__':
     app.run(debug=True)
