@@ -1,0 +1,39 @@
+{%extends "base.html"%}
+
+{% block head %}
+    <title>Moje zařízení</title>
+{% endblock %}
+
+{% block navbar %}
+{% endblock %}
+
+{% block body %}
+    <h1>Moje zařízení</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Název</th>
+                <th>Typ</th>
+                <th>Atelier</th>
+                <th>Akce</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for zarizeni in zarizeni %}
+            <tr>
+                <td><a href="/zarizeni_sprava/{{zarizeni.id}}">{{zarizeni.nazev}}</a></td>
+                <td>{{zarizeni.typ.nazev}}</td>
+                <td>{{zarizeni.atelier.nazev}}</td>
+                <td>
+                    {% if zarizeni.povolene %}
+                        <button type="button" class="button" onclick="window.location.href='{{url_for('zarizeni_zakazat', id_zarizeni=zarizeni.id) }}'">Zakázat</button>
+                    {% else %}
+                        <button type="button" class="button" onclick="window.location.href='{{url_for('zarizeni_zakazat', id_zarizeni=zarizeni.id) }}'">Povolit</button>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <h2><a href="{{url_for('zarizeni_pridat')}}">Pridat zarizeni</a></h2>
+{% endblock %}

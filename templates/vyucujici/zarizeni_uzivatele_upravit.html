@@ -1,0 +1,60 @@
+{%extends "base.html"%}
+
+{% block head %}
+    <title>Moje zařízení</title>
+{% endblock %}
+
+{% block navbar %}
+{% endblock %}
+
+{% block body %}
+    <h2>Uživatelé, kteří si mohou zařízení: {{zarizeni.nazev}} vypůjčit:</h2>
+    {% if uzivatel_zaznamy %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Login</th>
+                <th>Role</th>
+                <th>Akce</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for uzivatel_zaznamy in uzivatel_zaznamy %}
+            <tr>
+                <td>{{uzivatel_zaznamy.id}}</td>
+                <td>{{uzivatel_zaznamy.login}}</td>
+                <td>{{uzivatel_zaznamy.role}}</td>
+                <td>
+                    <button type="button" class="button" onclick="window.location.href='{{url_for('zarizeni_uzivatel_odebrat', id_zarizeni=zarizeni.id, id_uzivatele=uzivatel_zaznamy.id)}}'">Odebrat</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <h2>Ostatní uživatelé, patřící k ateliéru</h2>
+    {% endif %}
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Login</th>
+                <th>Role</th>
+                <th>Akce</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for uzivatel in uzivatele_atelier %}
+        <tr>
+            <td>{{uzivatel.id}}</td>
+            <td>{{uzivatel.login}}</td>
+            <td>{{uzivatel.role}}</td>
+            <td>
+                <button type="button" class="button" onclick="window.location.href='{{url_for('zarizeni_uzivatel_pridat', id_zarizeni=zarizeni.id, id_uzivatele=uzivatel.id)}}'">Přidat</button>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
