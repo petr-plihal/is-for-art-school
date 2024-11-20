@@ -23,20 +23,24 @@
     <nav>
         <ul>
             <li><a href="{{ url_for('index') }}">Home</a></li>
-            <li><a href="{{url_for('database')}}">Database</a></li>
 
             {% if current_user.is_authenticated %}
-                    <li><a href="{{url_for('logout')}}">Logout</a></li>
+                        <li><a href="{{url_for('logout')}}">Logout</a></li>
                 <li><a href="{{url_for('profile')}}">Profile</a></li>
                 {% if current_user.role == "vyucujici" %}
                     <li><a href="{{url_for('zarizeni_sprava')}}">Moje zařízení</a></li>
                 {% endif %}
                 <li><a href="{{url_for('search_devices')}}">Hledat zařízení</a></li>
                 <li><a href="{{url_for('my_borrows')}}">Moje výpůjčky</a></li>
+                <li><a href="{{url_for('profile')}}">Profile</a></li>
+                <li><a href="{{url_for('search_devices')}}">Hledat zařízení</a></li>
+                <li><a href="{{url_for('my_borrows')}}">Moje výpůjčky</a></li>
             {% else %}
-                <li><a href="{{url_for('register')}}">Register</a></li>
+                    <li><a href="{{url_for('register')}}">Register</a></li>
                 <li><a href="{{url_for('login')}}">Login</a></li>
             {% endif %}
+
+            <li><a href="{{url_for('database')}}">Database</a></li>
             {% block navbar %}{% endblock %}
         </ul>
     </nav>
