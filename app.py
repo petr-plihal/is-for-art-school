@@ -17,8 +17,8 @@ from usecase import ziskat_vsechny_typy, seznam_atelieru
 app = Flask(__name__)
 
 # Pripojeni k databazi lokalni MySQL/google cloud
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://sammy:password@localhost/demo'
-#app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://artist:&.{lE0A1i2&G$t3j@35.187.170.251/umelecka_skola'
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://sammy:password@localhost/demo'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://artist:&.{lE0A1i2&G$t3j@35.187.170.251/umelecka_skola'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'mujskrytyklicpaktozmenitnaneco'
 
@@ -460,7 +460,7 @@ def admin():
 @login_required
 @role_required(['admin'])
 def atelier_smazat(id_atelier):
-    atelier = Atelier.query.get(id_atelier)
+    atelier = Atelier.query.filter_by(id=id_atelier).first_or_404()
     if atelier:
         db.session.delete(atelier)
         db.session.commit()

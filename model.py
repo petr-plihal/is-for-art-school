@@ -37,7 +37,7 @@ class Atelier(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nazev = db.Column(db.String(50), unique=True, nullable=False)
     
-    zarizeni = db.relationship('Zarizeni', back_populates='atelier')                                       # zarizeni atelieru
+    zarizeni = db.relationship('Zarizeni', back_populates='atelier', passive_deletes=True)                 # zarizeni atelieru
     uzivatele = db.relationship('Uzivatel', secondary=atelier_uzivatel, back_populates='ateliery')         # uzivatel spadajici do atelieru
     spravci = db.relationship('Spravce', secondary=atelier_spravce, back_populates='ateliery')             # spravce atelieru
     ucitele = db.relationship('Vyucujici', secondary=atelier_vyucujici, back_populates='ateliery')         # vyucujici z atelieru
@@ -99,7 +99,7 @@ class Typ(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nazev = db.Column(db.String(50), unique=True, nullable=False)
 
-    zarizeni = db.relationship('Zarizeni', back_populates='typ', passive_deletes=True)
+    zarizeni = db.relationship('Zarizeni', back_populates='typ')
 
 
 class Zarizeni(db.Model):
@@ -111,7 +111,7 @@ class Zarizeni(db.Model):
     max_doba_vypujcky = db.Column(db.Integer)   # Pocet dni
     povolene = db.Column(db.Boolean, default=True)
     id_atelier = db.Column(db.Integer, db.ForeignKey('atelier.id', ondelete='CASCADE'), nullable=False)
-    id_typ = db.Column(db.Integer, db.ForeignKey('typ.id', ondelete='CASCADE'), nullable=False)
+    id_typ = db.Column(db.Integer, db.ForeignKey('typ.id', ondelete='CASCADE'))
     id_vyucujici = db.Column(db.Integer, db.ForeignKey('vyucujici.id_vyucujici', ondelete='CASCADE'), nullable=False)
     #obrazek
 
