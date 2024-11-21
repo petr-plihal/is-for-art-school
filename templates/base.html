@@ -34,6 +34,10 @@
                 <li><a href="{{url_for('register')}}">Register</a></li>
                 <li><a href="{{url_for('login')}}">Login</a></li>
             {% endif %}
+
+            <li><a href="{{url_for('search_devices')}}">Hledat zařízení</a></li>
+            <li><a href="{{url_for('my_borrows')}}">Moje výpůjčky</a></li>
+
             {% block navbar %}{% endblock %}
         </ul>
     </nav>
