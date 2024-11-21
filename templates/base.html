@@ -27,9 +27,13 @@
             {% if current_user.is_authenticated %}
                 <li><a href="{{url_for('logout')}}">Logout</a></li>
                 <li><a href="{{url_for('profile')}}">Profile</a></li>
+                <li><a href="{{url_for('search_devices')}}">Hledat zařízení</a></li>
+                <li><a href="{{url_for('my_borrows')}}">Moje výpůjčky</a></li>
+
                 {% if current_user.role in ["vyucujici", "admin"] %}
                     <li><a href="{{url_for('zarizeni_sprava')}}">Moje zařízení</a></li>
                 {% endif %}
+                
                 {% if current_user.role == "admin" %}
                     <li><a href="{{url_for('admin')}}">Admin</a></li>
                 {% endif %}
@@ -37,9 +41,6 @@
                 <li><a href="{{url_for('register')}}">Register</a></li>
                 <li><a href="{{url_for('login')}}">Login</a></li>
             {% endif %}
-
-            <li><a href="{{url_for('search_devices')}}">Hledat zařízení</a></li>
-            <li><a href="{{url_for('my_borrows')}}">Moje výpůjčky</a></li>
 
             {% block navbar %}{% endblock %}
         </ul>

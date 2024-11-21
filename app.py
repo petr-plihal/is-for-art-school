@@ -121,7 +121,7 @@ def logout():
 @login_required
 def profile():
     rezervace = Rezervace.query.filter_by(id_uzivatel=current_user.id).all()
-    return render_template('profile.html', rezervace=rezervace)
+    return render_template('user/profile.html', rezervace=rezervace)
 
 @app.route('/user_change', methods=['GET', 'POST'])
 @login_required
