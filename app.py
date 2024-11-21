@@ -348,8 +348,6 @@ def pridani_vyucujiciho():
             # Propojení vyučujícího a ateliéru
             db.session.execute(atelier_vyucujici.insert().values(id_atelier=id_atelieru, id_vyucujici=vyucujici.id_vyucujici))
             db.session.commit()
-    # Pokud je zadán login, který není vyučující, ale je uživatel, pak vytvoří nový záznam vyučujícího z uživatele
-    # (id_vyucujiciho se vytvoří samo autoincrementem)
 
     return redirect(url_for('atelier'))
 
