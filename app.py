@@ -749,7 +749,7 @@ def device(device_id):
 
     return render_template('user/device.html', zarizeni=zarizeni, aktualni_datum_cast=aktualni_datum_cas)
 
-  @app.route('/vypujcky')
+@app.route('/vypujcky')
 def vypujcky():
     vypujcky = Rezervace.query.filter_by(id_vyucujici=current_user.id_vyucujici).all()
     all_users = get_all_users()
