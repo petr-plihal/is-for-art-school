@@ -1,0 +1,53 @@
+{%extends "base.html"%}
+
+{% block head %}
+    <title>Admin</title>
+{% endblock %}
+
+{% block navbar %}
+{% endblock %}
+
+{% block body %}
+    <h1>Stránka administrátora</h1>
+    <h2>Správa atelierů</h2>
+    {% for atelier in ateliery %}
+    <form method="POST" action="/admin/atelier/{{atelier.id}}/zmena">
+        <input type="hidden" name="atelier_nazev" value="true">
+        <label for="name">Název:</label>
+        <input type="text" id="name" name="atelier_name" value="{{atelier.nazev}}">
+        <input type="submit" value="Změnit název">
+        <button type="button" class="button" onclick="window.location.href='{{url_for('atelier_smazat', id_atelier = atelier.id) }}'">Smazat atelier</button>
+    </form>
+    {% endfor %}
+
+    <h3>Přidat nový atelier</h3>
+    
+    <form method="POST" action="/admin">
+        <input type="hidden" name="atelier_pridat" value="true">
+        <label for="name">Název:</label>
+        <input type="text" id="name" name="atelier_name">
+        <input type="submit" value="Přidat atelier">
+    </form>
+
+    <a href="admin/spravce_sprava"><h2>Přidat nového správce atelieru</h2></a>
+
+    <h2>Správa uživatelů</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Login</th>
+                <th>Role</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for uzivatel in uzivatele %}
+            <tr>
+                <td>{{ uzivatel.id }}</td>
+                <td><a href="/admin/uzivatel/{{ uzivatel.id }}">{{ uzivatel.login }}</a></td>
+                <td>{{ uzivatel.role }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

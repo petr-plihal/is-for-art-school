@@ -8,10 +8,14 @@ IIS Projekt - Umělecká škola
 - `source env/bin/activate`
 
 ### Pridani balicku do virtualenv
-`pip3 install flask flask-sqlalchemy pymysql flask-bycrypt flask-login cryptography`
+[`pip3 install flask flask-sqlalchemy pymysql flask-bcrypt flask-login cryptography`]: #
+`pip install -r requirements.txt`
 
 ### Samotne spusteni aplikace
 `python3 app.py`
+nebo
+`flask run`
+
 ### Aplikace je pak dostupna pres localhost na portu 5000
 `localhost:5000`
 
@@ -30,3 +34,9 @@ Pri pouzivani googlecloud databaze by to melo bezet bez problemu, ale pokud bude
 - Uživatele: user1, user2, user3
 ##### Heslo pro všechny
 - aaa
+
+#### Export závislostí
+`pip3 freeze > requirements.txt`
+
+#### Import závislostí
+`pip3 install -r requirements.txt`
