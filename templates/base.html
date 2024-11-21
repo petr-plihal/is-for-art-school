@@ -37,6 +37,15 @@
                 {% if current_user.role == "admin" %}
                     <li><a href="{{url_for('admin')}}">Admin</a></li>
                 {% endif %}
+      
+                {% if current_user.role == 'vyucujici' %}
+                    <li><a href="{{url_for('vypujcky')}}">Výpůjčky</a></li>
+                {% endif %}
+      
+                {% if current_user.role == 'spravce' %}
+                    <li><a href="{{url_for('atelier')}}">Atelier</a></li>
+                {% endif %}
+      
             {% else %}
                 <li><a href="{{url_for('register')}}">Register</a></li>
                 <li><a href="{{url_for('login')}}">Login</a></li>

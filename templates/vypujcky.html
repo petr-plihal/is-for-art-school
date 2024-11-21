@@ -1,0 +1,38 @@
+{%extends "base.html"%}
+
+{% block head %}
+    <title>Výpůjčky</title>
+{% endblock %}
+
+{% block navbar %}
+{% endblock %}
+
+{% block body %}
+    <h1>Tvoje spravované výpůjčky:</h1>
+
+    <ul>
+        {% for vypujcka in vypujcky %}
+            <li>{{ all_users[vypujcka.id_uzivatel] }} - {{ all_devices[vypujcka.id_zarizeni] }} - {{ vypujcka.stav }}<br>
+                Od: {{ vypujcka.datum_od.day }}. {{ vypujcka.datum_od.month }}. {{ vypujcka.datum_od.year }}
+                Do: {{ vypujcka.datum_do.day }}. {{ vypujcka.datum_do.month }}. {{ vypujcka.datum_do.year }}
+                <form method="POST" action="/update_rezervace">
+                    <!-- skrytý komentář kvůli funkčnosti -->
+                    <input type="hidden" id="reservation-id" name="reservation_id" value="{{vypujcka.id}}">
+
+                    <label for="status">Změnit stav rezervace:</label>
+                    <select id="status" name="status" required>
+                        <option value="_NONE_">Vybrat</option>
+                        <option value="Rezervovano">Rezervovano</option>
+                        <option value="Vypujceno">Vypujceno</option>
+                        <option value="Vraceno">Vraceno</option>
+                    </select>
+
+                    <input id="start_date" name="start_date" type="date" placeholder="Změnit začátek">
+                    <input id="end_date" name="end_date" type="date" placeholder="Změnit konec">
+                
+                    <button type="submit">Uložit změny</button>
+                </form>
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}
