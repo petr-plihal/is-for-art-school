@@ -27,8 +27,11 @@
             {% if current_user.is_authenticated %}
                 <li><a href="{{url_for('logout')}}">Logout</a></li>
                 <li><a href="{{url_for('profile')}}">Profile</a></li>
-                {% if current_user.role == "vyucujici" %}
+                {% if current_user.role in ["vyucujici", "admin"] %}
                     <li><a href="{{url_for('zarizeni_sprava')}}">Moje zařízení</a></li>
+                {% endif %}
+                {% if current_user.role == "admin" %}
+                    <li><a href="{{url_for('admin')}}">Admin</a></li>
                 {% endif %}
             {% else %}
                 <li><a href="{{url_for('register')}}">Register</a></li>

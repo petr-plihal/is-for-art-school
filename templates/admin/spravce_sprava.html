@@ -1,0 +1,31 @@
+{%extends "base.html"%}
+
+{% block head %}
+    <title>Admin</title>
+{% endblock %}
+
+{% block navbar %}
+{% endblock %}
+
+{% block body %}
+    <h1>Stránka administrátora</h1>
+    <h2>Přidat nového správce atelieru</h2>
+    
+    {% for uzivatel in uzivatele %}
+    {% if uzivatel.role != "vyucujici" %}
+        
+        <form method="POST" action="/admin/spravce_sprava">
+            <input type="hidden" name="spravce_pridat" value="true">
+            <input type="hidden" name="uzivatel_id" value="{{ uzivatel.id }}">
+            {{uzivatel.login}} - {{uzivatel.role}}
+            <select name="atelier_id" id="typ">
+                {% for atelier in ateliery %}
+                    <option value="{{atelier.id}}">{{atelier.nazev}}</option>
+                {% endfor %}
+            </select>
+            <input type="submit" value="Přidat správce"><br>
+        
+        </form>
+    {% endif %}
+    {% endfor %}
+{% endblock %}

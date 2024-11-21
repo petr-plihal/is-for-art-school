@@ -1,5 +1,5 @@
 from datetime import datetime
-from model import db, Zarizeni, zarizeni_uzivatel, Vyucujici, Navraceni
+from model import db, Zarizeni, zarizeni_uzivatel, Vyucujici, Navraceni, Uzivatel
 
 #           ----------------- Vyučující -----------------
 
@@ -89,6 +89,10 @@ def ma_zarizeni_zaznamy(id_zarizeni):
 
 # Funkce pro kontrolu zdali, má daný uživatel přístup na stránku
 def kontrola_pristupu_vyucujici(user_id, id_zarizeni):
+    uzivatel = Uzivatel.query.filter_by(id=user_id).first_or_404()
+    if uzivatel.role == 'admin':
+        return True
+    del uzivatel
     vyucujici = Vyucujici.query.filter_by(id=user_id).first_or_404()
     zarizeni = Zarizeni.query.filter_by(id=id_zarizeni).first_or_404()
     

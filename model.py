@@ -1,6 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from flask_login import UserMixin
+from sqlalchemy import text
 
 # Vytvoreni SQLAlchemy instance pro databazi
 db = SQLAlchemy()
@@ -61,8 +62,8 @@ class Uzivatel(db.Model, UserMixin):
     
 class Vyucujici(Uzivatel):
     __tablename__ = 'vyucujici'
-    id = db.Column(db.Integer, db.ForeignKey('uzivatel.id', ondelete='CASCADE'), primary_key=True)
-    id_vyucujici = db.Column(db.Integer, nullable=False, autoincrement=True, unique=True)
+    id = db.Column(db.Integer, db.ForeignKey('uzivatel.id', ondelete='CASCADE'))
+    id_vyucujici = db.Column(db.Integer, nullable=False, primary_key=True)
     
     ateliery = db.relationship('Atelier', secondary=atelier_vyucujici, back_populates='ucitele')
     zarizeni = db.relationship('Zarizeni', back_populates='vyucujici', passive_deletes=True)
@@ -75,8 +76,8 @@ class Vyucujici(Uzivatel):
     
 class Spravce(Uzivatel):
     __tablename__ = 'spravce'
-    id = db.Column(db.Integer, db.ForeignKey('uzivatel.id', ondelete='CASCADE'), primary_key=True)
-    id_spravce = db.Column(db.Integer, nullable=False, autoincrement=True, unique=True)
+    id = db.Column(db.Integer, db.ForeignKey('uzivatel.id', ondelete='CASCADE'))
+    id_spravce = db.Column(db.Integer, nullable=False, primary_key=True)
     
     ateliery = db.relationship('Atelier', secondary=atelier_spravce, back_populates='spravci')
 

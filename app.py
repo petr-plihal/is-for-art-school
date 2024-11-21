@@ -10,6 +10,7 @@ pymysql.install_as_MySQLdb()
 from model import *
 from registrovany_uzivatel import *
 from vyucujici import *
+from admin import *
 from usecase import ziskat_vsechny_typy, seznam_atelieru
 
 # Vytvoreni flask aplikace
@@ -176,15 +177,18 @@ def role_required(roles):
         return decorated_function
     return decorator
 
-# ---- Stránky pro vyučující ----
+#           ----------------- Vyučující -----------------
 # Stránka pro zobrazní všech zařízení daného vyučujícího
 @app.route('/zarizeni_sprava')
 @login_required
 @role_required(['vyucujici', 'admin'])
 def zarizeni_sprava():
-    vyucujici = Vyucujici.query.filter_by(id=current_user.id).first_or_404()
-    zarizeni = Zarizeni.query.filter_by(id_vyucujici=vyucujici.id_vyucujici).all()
-    return render_template('zarizeni_sprava.html', zarizeni=zarizeni, vyucujici=vyucujici)
+    if current_user.role == 'admin':
+        zarizeni = Zarizeni.query.all()
+    else:
+        vyucujici = Vyucujici.query.filter_by(id=current_user.id).first_or_404()
+        zarizeni = Zarizeni.query.filter_by(id_vyucujici=vyucujici.id_vyucujici).all()
+    return render_template('vyucujici/zarizeni_sprava.html', zarizeni=zarizeni)
 
 # Stránka pro správu jednotlivých zařízení
 @app.route('/zarizeni_sprava/<int:id_zarizeni>', methods=['GET', 'POST'])
@@ -200,7 +204,7 @@ def zarizeni_by_id(id_zarizeni):
         return redirect(url_for('home'))
     
     if request.method == 'GET':
-        return render_template('zarizeni_by_id.html', zarizeni=zarizeni, typ=typ, navraceni=navraceni)
+        return render_template('vyucujici/zarizeni_by_id.html', zarizeni=zarizeni, typ=typ, navraceni=navraceni)
     # Zpracování formuláře pro změnu udajů o zařízení (vše jsou řetězce)
     elif request.method == 'POST' and 'data_change' in request.form:
         nazev = request.form.get('name')
@@ -282,14 +286,16 @@ def delete_navraceni(id_zarizeni, id_navraceni):
 @login_required
 @role_required(['vyucujici', 'admin'])
 def zarizeni_pridat():
-    vyucujici = Vyucujici.query.filter_by(id=current_user.id).first_or_404()
     typ = Typ.query.all()
-    
-    # Získání všech ateliérů, které vyučující vyučuje, pomocí propojení tabulky Ateliér a atelier_vyucujici
-    ateliery = db.session.query(Atelier).join(atelier_vyucujici, atelier_vyucujici.c.id_atelier == Atelier.id).filter(atelier_vyucujici.c.id_vyucujici == vyucujici.id_vyucujici).all()
-    
+    if current_user.role == 'admin':
+        ateliery = Atelier.query.all()
+    else:
+        vyucujici = Vyucujici.query.filter_by(id=current_user.id).first_or_404()
+        # Získání všech ateliérů, které vyučující vyučuje, pomocí propojení tabulky Ateliér a atelier_vyucujici
+        ateliery = db.session.query(Atelier).join(atelier_vyucujici, atelier_vyucujici.c.id_atelier == Atelier.id).filter(atelier_vyucujici.c.id_vyucujici == vyucujici.id_vyucujici).all()
+        
     if request.method == 'GET':
-        return render_template('zarizeni_pridat.html', typ=typ, atelier=ateliery)
+        return render_template('vyucujici/zarizeni_pridat.html', typ=typ, atelier=ateliery)
     # Přidání nového zařízení skrze formulář
     elif request.method == 'POST':
         nazev = request.form.get('name')
@@ -319,14 +325,14 @@ def zarizeni_pridat():
         datum_navraceni = request.form.get('datum_navraceni')
         datum_vypujceni = request.form.get('datum_vypujceni')
         datum_navraceni = format_datum(datum_navraceni)
-        datum_navraceni = format_datum(datum_vypujceni)                
+        datum_vypujceni = format_datum(datum_vypujceni)                
         
         if datum_navraceni < datetime.today() or datum_vypujceni < datetime.today():
             flash('Nelze zadat minulé datum', 'danger')
             return redirect(url_for('zarizeni_pridat'))
         
         # Přidání nového zařízení do databáze
-        nove_zarizeni_id = pridat_zarizeni(nazev, datetime(int(rok_vyroby), 1, 1), datum_nakupu, int(doba_vypujcky), int(atelier_id), int(typ_id), vyucujici.id_vyucujici)
+        nove_zarizeni_id = pridat_zarizeni(nazev, int(typ_id), datetime(int(rok_vyroby), 1, 1), datum_nakupu, int(doba_vypujcky), int(atelier_id), vyucujici.id_vyucujici)
         
         # Propojení zařízení s daty navrácení z tabulky Navrácení
         pridani_vraceni(nove_zarizeni_id, "Vypujceni", datum_vypujceni)
@@ -397,7 +403,7 @@ def zarizeni_uzivatele_upravit(id_zarizeni):
     # Oddelani uzivatelu, kteri jsou v tabulce zarizeni_uzivatel
     uzivatele_atelier = [uzivatel for uzivatel in uzivatele_atelier if uzivatel not in uzivatel_zaznamy]
     
-    return render_template('zarizeni_uzivatele_upravit.html', zarizeni=zarizeni, uzivatele_atelier=uzivatele_atelier, uzivatel_zaznamy=uzivatel_zaznamy)
+    return render_template('vyucujici/zarizeni_uzivatele_upravit.html', zarizeni=zarizeni, uzivatele_atelier=uzivatele_atelier, uzivatel_zaznamy=uzivatel_zaznamy)
 
 # Přidání uživatele do omezení
 @app.route('/zarizeni_sprava/<int:id_zarizeni>/zarizeni_uzivatele_upravit/pridat/<int:id_uzivatele>')
@@ -427,6 +433,205 @@ def zarizeni_uzivatel_odebrat(id_zarizeni, id_uzivatele):
     
     return redirect(url_for('zarizeni_uzivatele_upravit', id_zarizeni=id_zarizeni))
 
+#           ----------------- Admin -----------------
+# Admin stránka pro zobrazení ateliérů a uživatelů a správu ateliérů
+@app.route('/admin', methods=['GET', 'POST'])
+@login_required
+@role_required(['admin'])
+def admin():
+    if request.method == 'GET':
+        ateliery = Atelier.query.all()
+        uzivatele = Uzivatel.query.all()
+        return render_template('admin/admin.html', ateliery=ateliery, uzivatele=uzivatele)
+    
+    # Přidání nového ateliéru
+    elif request.method == 'POST' and "atelier_pridat" in request.form:
+        nazev = request.form.get('atelier_name')
+        if Atelier.query.filter_by(nazev=nazev).first():
+            flash('Ateliér s daným názvem již existuje', 'danger')
+            return redirect(url_for('admin'))
+        else:
+            atelier_pridat(nazev)
+            flash('Ateliér byl přidán', 'success')
+        return redirect(url_for('admin'))
+
+# Smazání ateliéru
+@app.route('/admin/atelier/<int:id_atelier>/delete', methods=['GET', 'POST'])
+@login_required
+@role_required(['admin'])
+def atelier_smazat(id_atelier):
+    atelier = Atelier.query.get(id_atelier)
+    if atelier:
+        db.session.delete(atelier)
+        db.session.commit()
+        flash('Atelier byl smazán', 'success')
+    return redirect(url_for('admin'))
+
+# Změna názvu ateliéru
+@app.route('/admin/atelier/<int:id_atelier>/zmena', methods=['GET', 'POST'])
+@login_required
+@role_required(['admin'])
+def atelier_zmena(id_atelier):
+    if request.method == 'POST' and 'atelier_nazev' in request.form:
+        novy_nazev = request.form.get('atelier_name')
+        if Atelier.query.filter_by(nazev=novy_nazev).first():
+            flash('Ateliér s daným názvem již existuje', 'danger')
+            return redirect(url_for('admin'))
+        else:
+            atelier_zmena = Atelier.query.filter_by(id=id_atelier).first_or_404()
+            atelier_zmena.nazev = novy_nazev
+            db.session.commit()
+            flash('Název atelieru byl úspěšně změněn', 'success')
+        return redirect(url_for('admin'))
+
+# Přidání nového správce k ateliéru
+@app.route('/admin/spravce_sprava', methods=['GET', 'POST'])
+@login_required
+@role_required(['admin'])
+def spravce_sprava():
+    if request.method == 'GET':
+        uzivatele = Uzivatel.query.all()
+        ateliery = Atelier.query.all()
+        return render_template('admin/spravce_sprava.html', uzivatele=uzivatele, ateliery=ateliery)
+    
+    elif request.method == 'POST':
+        id_uzivatel = int(request.form.get('uzivatel_id'))
+        id_atelieru = int(request.form.get('atelier_id'))
+        uzivatel = Uzivatel.query.filter_by(id=id_uzivatel).first()
+        # Pokud je uživatel již správcem, kontrola jestli již nespravuje daný atelér
+        if uzivatel.role == "spravce":
+            if db.session.query(Spravce).join(atelier_spravce, atelier_spravce.c.id_spravce == Spravce.id_spravce).filter(atelier_spravce.c.id_atelier == id_atelieru).filter(Spravce.id == id_uzivatel).first():
+                atelier = Atelier.query.filter_by(id=id_atelieru).first()
+                flash(f'Uživatel {uzivatel.login} již spravuje atelier {atelier.nazev}', 'danger')
+                return redirect(url_for('spravce_sprava'))
+        else:
+            # Vytvoření nového správce
+            uzivatel.role = "spravce"
+            db.session.commit()
+            spravce_pridat(uzivatel)
+                
+        del uzivatel        # Je potřeba odstanit předchozí objekt, aby se mohl znovu načíst z databáze
+        spravce = db.session.query(Spravce).filter_by(id=id_uzivatel).first()
+        # Propojení správce a ateliéru
+        db.session.execute(atelier_spravce.insert().values(id_atelier=id_atelieru, id_spravce=spravce.id_spravce))
+        db.session.commit()
+        return redirect(url_for('spravce_sprava'))
+
+# Stránka pro správu jednotlivých uživatelů
+@app.route('/admin/uzivatel/<int:id_uzivatele>', methods=['GET', 'POST'])
+@login_required
+@role_required(['admin'])
+def uzivatel_by_id(id_uzivatele):
+    uzivatel = Uzivatel.query.filter_by(id=id_uzivatele).first_or_404()
+    
+    if request.method == 'GET':
+        ateliery_uzivatel = db.session.query(Atelier).join(atelier_uzivatel, atelier_uzivatel.c.id_atelier == Atelier.id).filter(atelier_uzivatel.c.id_uzivatel == uzivatel.id).all() or []
+        ateliery_vyucujici = []
+        ateliery_spravce = []
+        
+        # Získání propojeni mezi ateliery a vyučujícím/správcem
+        if uzivatel.role == "vyucujici":
+            vyucujici = Vyucujici.query.filter_by(id=id_uzivatele).first()
+            ateliery_vyucujici = db.session.query(Atelier).join(atelier_vyucujici, atelier_vyucujici.c.id_atelier == Atelier.id).filter(atelier_vyucujici.c.id_vyucujici == vyucujici.id_vyucujici).all()
+        if uzivatel.role == "spravce":
+            spravce = Spravce.query.filter_by(id=id_uzivatele).first()
+            ateliery_spravce = db.session.query(Atelier).join(atelier_spravce, atelier_spravce.c.id_atelier == Atelier.id).filter(atelier_spravce.c.id_spravce == spravce.id_spravce).all()
+        
+        return render_template('admin/uzivatel_by_id.html', uzivatel=uzivatel, ateliery_vyucujici=ateliery_vyucujici, ateliery_uzivatel=ateliery_uzivatel, ateliery_spravce=ateliery_spravce)
+    
+    # Správa uživatelů - změna loginu
+    elif request.method == 'POST' and "uzivatel_login" in request.form:
+        novy_login = request.form.get('novy_login')
+        if Uzivatel.query.filter_by(login=novy_login).first():
+            flash('Uživatel s daným loginem již existuje', 'danger')
+            return redirect(url_for('uzivatel_by_id', id_uzivatele=id_uzivatele))
+        else:
+            uzivatel.login = novy_login
+            db.session.commit()
+            flash('Login byl změněn', 'success')
+        return redirect(url_for('uzivatel_by_id', id_uzivatele=id_uzivatele))
+    
+    # Změna hesla
+    elif request.method == 'POST' and "uzivatel_heslo" in request.form:
+        nove_heslo = request.form.get('nove_heslo')
+        hashed_password = bcrypt.generate_password_hash(nove_heslo)
+        uzivatel.heslo = hashed_password
+        db.session.commit()
+        flash('Heslo bylo změněno', 'success')
+        return redirect(url_for('uzivatel_by_id', id_uzivatele=id_uzivatele))
+
+    # Změna role
+    elif request.method == 'POST' and 'uzivatel_role' in request.form:
+        nova_role = request.form.get('nova_role')
+        if nova_role == "vyucujici":
+            if Vyucujici.query.filter_by(id=id_uzivatele).first():
+                flash('Uživatel již je vyučující', 'danger')
+                return redirect(url_for('uzivatel_by_id', id_uzivatele=id_uzivatele))
+            else:
+                vyucujici_pridat(uzivatel)
+                # Pokud byl uživatel správcem, musí být odstraněn z tabulky Spravce
+                if uzivatel.role == "spravce":
+                    spravce_smazat(uzivatel)
+                del uzivatel
+                uzivatel = Uzivatel.query.filter_by(id=id_uzivatele).first()
+                uzivatel.role = "vyucujici"
+                db.session.commit()
+        
+        elif nova_role == "spravce":
+            if Spravce.query.filter_by(id=id_uzivatele).first():
+                flash('Uživatel již je správce', 'danger')
+                return redirect(url_for('uzivatel_by_id', id_uzivatele=id_uzivatele))
+            else:
+                spravce_pridat(uzivatel)
+                # Pokud byl uživatel vyučující, musí být odstraněn z tabulky Vyucujici
+                if uzivatel.role == "vyucujici":
+                    vyucujici_smazat(uzivatel)
+                del uzivatel
+                uzivatel = Uzivatel.query.filter_by(id=id_uzivatele).first()
+                uzivatel.role = "spravce"
+                db.session.commit()
+        
+        # Změna role na obyčejného uživatele
+        else:
+            if uzivatel.role == "uzivatel":
+                flash('Uživatel již je obyčejným uživatelem', 'danger')
+                return redirect(url_for('uzivatel_by_id', id_uzivatele=id_uzivatele))
+            elif uzivatel.role == "vyucujici":
+                vyucujici_smazat(uzivatel)
+            elif uzivatel.role == "spravce":
+                spravce_smazat(uzivatel)
+            del uzivatel
+            uzivatel = Uzivatel.query.filter_by(id=id_uzivatele).first()
+            uzivatel.role = "uzivatel"
+            db.session.commit()
+        flash('Role byla změněna', 'success')
+        return redirect(url_for('uzivatel_by_id', id_uzivatele=id_uzivatele))
+    
+    # Odstranění správce z ateliéru
+    elif request.method == 'POST' and "spravce_atelier" in request.form:
+        id_atelier = request.form.get('atelier_id')
+        atelier_spravce_smazat(id_uzivatele, id_atelier)
+        return redirect(url_for('uzivatel_by_id', id_uzivatele=id_uzivatele))
+
+    # Odstranění vyučujícího z ateliéru
+    elif request.method == 'POST' and "vyucujici_atelier" in request.form:
+        id_atelier = request.form.get('atelier_id')
+        atelier_vyucujici_smazat(id_uzivatele, id_atelier)
+        return redirect(url_for('uzivatel_by_id', id_uzivatele=id_uzivatele))
+
+    # Odstranění uživatele z ateliéru
+    elif request.method == 'POST' and "uzivatel_atelier" in request.form:
+        id_atelier = request.form.get('atelier_id')
+        atelier_uzivatel_smazat(id_uzivatele, id_atelier)
+        return redirect(url_for('uzivatel_by_id', id_uzivatele=id_uzivatele))
+    
+    # Smazání uživatele
+    elif request.method == 'POST' and "delete_uzivatel" in request.form:
+        db.session.delete(uzivatel)
+        db.session.commit()
+        flash('Uživatel byl smazán', 'success')
+        return redirect(url_for('admin'))  
+      
 @app.route('/home')
 def home():
     return render_template('home.html')

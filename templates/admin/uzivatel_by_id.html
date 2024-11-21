@@ -1,0 +1,76 @@
+{%extends "base.html"%}
+
+{% block head %}
+    <title>Správa uživatele</title>
+    
+{% endblock %}
+
+{% block navbar %}
+{% endblock %}
+
+{% block body %}
+    <h1>Uživatel: {{uzivatel.login}}</h1>
+    <form method="POST" action="/admin/uzivatel/{{uzivatel.id}}">
+        <input type="hidden" name="uzivatel_login" value="true">
+        <label for="name">Nový login:</label>
+        <input type="text" id="name" name="novy_login" value="{{uzivatel.login}}">
+        <input type="submit" value="Změnit login">
+    </form>
+    <form method="POST" action="/admin/uzivatel/{{uzivatel.id}}">
+        <input type="hidden" name="uzivatel_heslo" value="true">
+        <label for="name">Nové heslo</label>
+        <input type="password" id="name" name="nove_heslo":>
+        <input type="submit" value="Změnit heslo">
+    </form>
+
+    <form method="POST" action="/admin/uzivatel/{{uzivatel.id}}">
+        <input type="hidden" name="uzivatel_role" value="true">
+        <label for="name">Nová role</label>
+        <select name="nova_role" id="role">
+            <option value="uzivatel" {% if uzivatel.role == "uzivatel" %}selected{% endif %}>uzivatel</option>
+            <option value="vyucujici" {% if uzivatel.role == "vyucujici" %}selected{% endif %}>vyucujici</option>
+            <option value="spravce" {% if uzivatel.role == "spravce" %}selected{% endif %}>spravce</option>
+        </select>
+        <input type="submit" value="Změnit roli">
+    </form>
+
+    {% if uzivatel.role == "spravce"%}
+        <h3>Ateliery spravované uživatelem</h3>
+        {% for atelier in ateliery_spravce %}
+            <form method="POST" action="/admin/uzivatel/{{uzivatel.id}}">
+                <input type="hidden" name="spravce_atelier" value="true">
+                <input type="hidden" name="atelier_id" value="{{atelier.id}}">
+                <label for="name">Atelier: {{atelier.nazev}}</label>
+                <input type="submit" value="Odebrat správce">
+            </form>
+        {% endfor %}
+    {% endif %}
+
+    {% if uzivatel.role == "vyucujici"%}
+        <h3>Ateliery vyučované uživatelem</h3>
+        {% for atelier in ateliery_vyucujici %}
+            <form method="POST" action="/admin/uzivatel/{{uzivatel.id}}">
+                <input type="hidden" name="vyucujici_atelier" value="true">
+                <input type="hidden" name="atelier_id" value="{{atelier.id}}">
+                <label for="name">Atelier: {{atelier.nazev}}</label>
+                <input type="submit" value="Odebrat vyučujícího">
+            </form>
+        {% endfor %}
+    {% endif %}
+
+    <h3>Ateliery uživatele</h3>
+    {% for atelier in ateliery_uzivatel %}
+        <form method="POST" action="/admin/uzivatel/{{uzivatel.id}}">
+            <input type="hidden" name="uzivatel_atelier" value="true">
+            <input type="hidden" name="atelier_id" value="{{atelier.id}}">
+            <label for="name">Atelier: {{atelier.nazev}}</label>
+            <input type="submit" value="Odebrat člena">
+        </form>
+    {% endfor %}
+    
+    <form method="POST" action="/admin/uzivatel/{{uzivatel.id}}">
+        <input type="hidden" name="delete_uzivatel" value="true">
+        <input type="submit" value="Smazat uživatele" onclick="return confirm('Opravdu chcete smazat tohoto uživatele?');">
+    </form>
+
+{% endblock %}
