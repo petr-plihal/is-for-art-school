@@ -1,26 +1,16 @@
 from flask import Flask, render_template, redirect, url_for, request, session, g, flash
 from flask_login import current_user, login_user, logout_user, LoginManager, login_required
 from flask_bcrypt import Bcrypt
-
-
 from sqlalchemy import or_
-
-from datetime import datetime
-
-from usecase import hledani_zarizeni, ziskat_vsechny_typy, seznam_atelieru, sledovani_vypujcek, zjisteni_stavu_zarizeni, muze_rezervovat_zarizeni, ziskat_aktivni_vypujcky, ziskat_vracene_vypujcky, je_validni_datum_rezervace, rezervace_zarizeni
-
-
-from datetime import datetime
-
-from usecase import hledani_zarizeni, ziskat_vsechny_typy, seznam_atelieru, sledovani_vypujcek, zjisteni_stavu_zarizeni, muze_rezervovat_zarizeni, ziskat_aktivni_vypujcky, ziskat_vracene_vypujcky, je_validni_datum_rezervace, rezervace_zarizeni
-
 from datetime import timedelta, date, datetime
 from functools import wraps # Dekorátor
 import pymysql
 pymysql.install_as_MySQLdb()
 
 from model import *
+from registrovany_uzivatel import *
 from vyucujici import *
+from usecase import ziskat_vsechny_typy, seznam_atelieru
 
 # Vytvoreni flask aplikace
 app = Flask(__name__)
