@@ -1,5 +1,6 @@
 from datetime import datetime
-from model import db, Uzivatel, Rezervace, Zarizeni, Typ, Atelier
+from model import db, Uzivatel, Rezervace, Zarizeni, Typ, Atelier, zarizeni_uzivatel
+from sqlalchemy import or_
 
 # Pro hashování hesel
 from werkzeug.security import check_password_hash
@@ -10,54 +11,6 @@ from werkzeug.security import check_password_hash
 def zaregistrovat_se(login, heslo):
     pridani_uzivatele(login=login, heslo=heslo)
 
-#           ----------- Registrovaný uživatel -----------
-
-# Upravení profilu (loginu nebo hesla)
-def upraveni_profilu(id_uzivatele, novy_login=None, nove_heslo=None):
-    uprava_uzivatele(id_uzivatele, novy_login=novy_login, nove_heslo=nove_heslo)
-
-# Sledování výpůjček
-def sledovani_vypujcek(id_uzivatele):
-    return Rezervace.query.filter_by(id_uzivatel=id_uzivatele).all()
-
-# Funkce pro rezervaci zařízení (funkce nekontroluje, zda není zařízení již rezervováno)
-def rezervace_zarizeni(id_zarizeni, id_uzivatele, id_vyucujici, datum_od, datum_do):
-    nova_rezervace = Rezervace(
-        stav="Rezervováno",
-        datum_od=datum_od,
-        datum_do=datum_do,
-        id_zarizeni=id_zarizeni,
-        id_uzivatel=id_uzivatele,
-        id_vyucujici=id_vyucujici
-    )
-    db.session.add(nova_rezervace)
-    db.session.commit()
-    
-# Funkce pro vypůjčení zařízení (funkce nekontroluje, zda není zařízení již vypůjčeno)
-def vypujceni_zarizeni(id_zarizeni, id_uzivatele, id_vyucujici, datum_od, datum_do):
-    nova_vypujcka = Rezervace(
-        stav="Vypůjčeno",
-        datum_od=datum_od,
-        datum_do=datum_do,
-        id_zarizeni=id_zarizeni,
-        id_uzivatel=id_uzivatele,
-        id_vyucujici=id_vyucujici
-    )
-    db.session.add(nova_vypujcka)
-    db.session.commit()
-
-# Funkce pro vyhledání zařízení podle různých kritérií
-def hledani_zarizeni(nazev=None, id_typ=None, id_atelier=None):
-    zarizeni = Zarizeni.query
-    
-    if nazev:
-        zarizeni = zarizeni.filter(Zarizeni.nazev.ilike(f"%{nazev}%"))
-    if id_typ:
-        zarizeni = zarizeni.filter_by(id_typ=id_typ)
-    if id_atelier:
-        zarizeni = zarizeni.filter_by(id_atelier=id_atelier)
-        
-    return zarizeni.all()
 
 #           ----------------- Vyučující -----------------
 

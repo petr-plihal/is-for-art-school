@@ -1,0 +1,27 @@
+<table>
+    <thead>
+        <tr>
+            <th>Název zařízení</th>
+            <th>Stav</th>
+            <th>Datum od</th>
+            <th>Datum do</th>
+            <th>Ateliér</th>
+            <th>Vyučující</th>
+            {% block extra_zahlavi %}{% endblock %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for vypujcka in vypujcky_seznam %}
+        <tr>
+            <td><a href="{{ url_for('device', device_id=vypujcka.zarizeni.id) }}">{{ vypujcka.zarizeni.nazev }}</a></td>
+            <td>{{ vypujcka.zarizeni.nazev }}</td>
+            <td>{{ vypujcka.stav }}</td>
+            <td>{{ vypujcka.datum_od.strftime('%Y-%m-%d') }}</td>
+            <td>{{ vypujcka.datum_do.strftime('%Y-%m-%d') }}</td>
+            <td>{{ vypujcka.zarizeni.atelier.nazev }}</td>
+            <td>{{ vypujcka.zarizeni.vyucujici.login }}</td>
+            {% block extra_sloupce %}{% endblock %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
