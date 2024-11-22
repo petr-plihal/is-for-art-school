@@ -23,7 +23,6 @@
     <nav>
         <ul>
             <li><a href="{{ url_for('index') }}">Home</a></li>
-            <li><a href="{{url_for('database')}}">Database</a></li>
             {% if current_user.is_authenticated %}
                 <li><a href="{{url_for('logout')}}">Logout</a></li>
                 <li><a href="{{url_for('profile')}}">Profil</a></li>
