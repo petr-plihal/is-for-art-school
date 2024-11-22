@@ -12,7 +12,7 @@
         <h1>Atelier: {{ atelier.nazev }}</h1>
         <!-- Přidat for loop (pravděpodobně, pokud nevymyslím lepší řešení) na projití všech atelireru, který správce 
         spravuje. Zatím funguje pouze na první v poli -->
-        <h1>Tvoje spravované zařízení:</h1>
+        <h2>Tvoje spravované zařízení:</h2>
 
         <ul>
             {% for typ in typy %}
@@ -24,13 +24,13 @@
             {% endfor %}
         </ul>
 
-        <h2>Přidat nový typ</h2>
+        <h3>Přidat nový typ</h3>
         <form method="POST" action="/pridani_typu">
             <input id="nazev" name="nazev" type="text" placeholder="Název zařízení">
             <button type="submit">Přidat</button>
         </form>
 
-        <h1>Vyučující v atelieru</h1>
+        <h2>Vyučující v atelieru</h2>
 
         <ul>
             {% for ucitel in vyucujici[loop.index0] %}
@@ -44,7 +44,7 @@
             {% endfor %}
         </ul>
 
-        <h2>Přidat nového vyučujícího do atelieru</h2>
+        <h3>Přidat nového vyučujícího do atelieru</h3>
         <form method="POST" action="/pridani_vyucujiciho">
             <!-- skrytý komentář kvůli funkčnosti -->
             <input type="hidden" id="id_atelieru" name="id_atelieru" value="{{atelier.id}}">
@@ -52,7 +52,7 @@
             <button type="submit">Přidat</button>
         </form>
 
-        <h1>Uživatelé v atelieru</h1>
+        <h2>Uživatelé v atelieru</h2>
         
         <ul>
             {% for uzivatel in uzivatele[loop.index0] %}
@@ -66,12 +66,13 @@
             {% endfor %}
         </ul>
 
-        <h2>Přidat nového uživatele do atelieru</h2>
+        <h3>Přidat nového uživatele do atelieru</h3>
         <form method="POST" action="/pridani_uzivatele">
             <!-- skrytý komentář kvůli funkčnosti -->
             <input type="hidden" id="id_atelieru" name="id_atelieru" value="{{atelier.id}}">
             <input id="login" name="login" type="text" placeholder="Login uživatele">
             <button type="submit">Přidat</button>
         </form>
+    <br><br><br>
     {% endfor %}
 {% endblock %}

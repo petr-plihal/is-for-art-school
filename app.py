@@ -17,8 +17,8 @@ from usecase import ziskat_vsechny_typy, seznam_atelieru
 app = Flask(__name__)
 
 # Pripojeni k databazi lokalni MySQL/google cloud
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://sammy:password@localhost/demo'
-#app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://artist:&.{lE0A1i2&G$t3j@35.187.170.251/umelecka_skola'
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://sammy:password@localhost/demo'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://artist:&.{lE0A1i2&G$t3j@35.187.170.251/umelecka_skola'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'mujskrytyklicpaktozmenitnaneco'
 
@@ -754,30 +754,8 @@ def vypujcky():
     vypujcky = Rezervace.query.filter_by(id_vyucujici=current_user.id_vyucujici).all()
     all_users = get_all_users()
     all_devices = get_all_device()
-    users_devices = get_users_devices()
+    users_devices = get_users_devices(current_user.id_vyucujici)
     return render_template('vypujcky.html', vypujcky=vypujcky, all_users=all_users, all_devices=all_devices, users_devices=users_devices)
-
-def get_users_devices():
-    devices = Zarizeni.query.filter_by(id_vyucujici=current_user.id_vyucujici).all()
-    return devices
-
-def get_all_device():
-    devices = Zarizeni.query.all()
-    all_devices = {}
-
-    for device in devices:
-        all_devices[device.id] = device.nazev
-
-    return all_devices
-
-def get_all_users():
-    users = Uzivatel.query.all()
-    all_users = {}
-
-    for user in users:
-        all_users[user.id] = user.login
-    
-    return all_users
 
 @app.route('/update_rezervace', methods=['POST'])
 def update_rezervace():

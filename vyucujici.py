@@ -106,3 +106,25 @@ def format_datum(datum):
     datum_parts = [int(part) for part in date_parts + time_parts]
     datum = datetime(datum_parts[0], datum_parts[1], datum_parts[2], datum_parts[3], datum_parts[4])
     return datum
+
+def get_users_devices(id_vyucujici):
+    devices = Zarizeni.query.filter_by(id_vyucujici=id_vyucujici).all()
+    return devices
+
+def get_all_device():
+    devices = Zarizeni.query.all()
+    all_devices = {}
+
+    for device in devices:
+        all_devices[device.id] = device.nazev
+
+    return all_devices
+
+def get_all_users():
+    users = Uzivatel.query.all()
+    all_users = {}
+
+    for user in users:
+        all_users[user.id] = user.login
+    
+    return all_users
