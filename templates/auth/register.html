@@ -1,14 +1,14 @@
 {%extends "base.html"%}
 
 {% block head %}
-    <title>Login stránka</title>
+    <title>Registrace</title>
 {% endblock %}
 
 {% block navbar %}
 {% endblock %}
 
 {% block body %}
-<h1>Registrovani uzvivatele</h1>
+<h1>Zaregistrujte se</h1>
 <form method="POST" action="{{url_for('register')}}">
     <label for="username">Uživatelský login:</label><br>
     <input type="text" id="login" name="login" required><br>

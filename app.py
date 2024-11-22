@@ -34,37 +34,9 @@ login_manager.init_app(app)
 def load_user(user_id):
     return Uzivatel.query.get(user_id)
 
-# Routes pro jednotlive stranky databaze
 @app.route('/')
 def index():
     return render_template('home.html')
-
-@app.route('/database')
-def database():
-    return render_template('database.html')
-
-# Vytvori databazi
-@app.route('/db')
-def create_db():    
-    with app.app_context():
-        db.create_all()
-    flash('Databaze byla vytvorena', 'success')
-    return render_template('database.html')
-
-# Zruseni vsech tabulek v databazi
-@app.route('/dropdb')
-def drop_db():
-    db.drop_all()
-    flash('Databaze byla zrusena', 'success')
-    return render_template('database.html')
-
-# Naplneni databaze daty
-@app.route('/insert')
-def insert():
-    insert_data(bcrypt)
-    #delete_one()
-    flash('Byly vlozeny zaznamy do db', 'success')
-    return render_template('database.html')
 
 # Regristace noveho uzivatele v systemu
 @app.route('/register', methods=['GET', 'POST'])
@@ -460,7 +432,7 @@ def admin():
 @login_required
 @role_required(['admin'])
 def atelier_smazat(id_atelier):
-    atelier = Atelier.query.get(id_atelier)
+    atelier = Atelier.query.filter_by(id=id_atelier).first_or_404()
     if atelier:
         db.session.delete(atelier)
         db.session.commit()

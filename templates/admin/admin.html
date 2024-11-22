@@ -42,11 +42,13 @@
         </thead>
         <tbody>
             {% for uzivatel in uzivatele %}
+            {% if uzivatel.role != "admin" %}
             <tr>
                 <td>{{ uzivatel.id }}</td>
                 <td><a href="/admin/uzivatel/{{ uzivatel.id }}">{{ uzivatel.login }}</a></td>
                 <td>{{ uzivatel.role }}</td>
             </tr>
+            {% endif %}
             {% endfor %}
         </tbody>
     </table>
