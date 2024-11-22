@@ -17,8 +17,8 @@ from usecase import ziskat_vsechny_typy, seznam_atelieru
 app = Flask(__name__)
 
 # Pripojeni k databazi lokalni MySQL/google cloud
-#app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://sammy:password@localhost/demo'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://artist:&.{lE0A1i2&G$t3j@35.187.170.251/umelecka_skola'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://sammy:password@localhost/demo'
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://artist:&.{lE0A1i2&G$t3j@35.187.170.251/umelecka_skola'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'mujskrytyklicpaktozmenitnaneco'
 
@@ -34,37 +34,9 @@ login_manager.init_app(app)
 def load_user(user_id):
     return Uzivatel.query.get(user_id)
 
-# Routes pro jednotlive stranky databaze
 @app.route('/')
 def index():
     return render_template('home.html')
-
-@app.route('/database')
-def database():
-    return render_template('database.html')
-
-# Vytvori databazi
-@app.route('/db')
-def create_db():    
-    with app.app_context():
-        db.create_all()
-    flash('Databaze byla vytvorena', 'success')
-    return render_template('database.html')
-
-# Zruseni vsech tabulek v databazi
-@app.route('/dropdb')
-def drop_db():
-    db.drop_all()
-    flash('Databaze byla zrusena', 'success')
-    return render_template('database.html')
-
-# Naplneni databaze daty
-@app.route('/insert')
-def insert():
-    insert_data(bcrypt)
-    #delete_one()
-    flash('Byly vlozeny zaznamy do db', 'success')
-    return render_template('database.html')
 
 # Regristace noveho uzivatele v systemu
 @app.route('/register', methods=['GET', 'POST'])
