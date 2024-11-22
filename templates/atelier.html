@@ -8,10 +8,11 @@
 {% endblock %}
 
 {% block body %}
+    <!-- for loop přes všechny ateliery, které uživatel spravuje -->
     {% for atelier in ateliery %}
         <h1>Atelier: {{ atelier.nazev }}</h1>
-        <!-- Přidat for loop (pravděpodobně, pokud nevymyslím lepší řešení) na projití všech atelireru, který správce 
-        spravuje. Zatím funguje pouze na první v poli -->
+        
+        <!----------- Zařízení ----------->
         <h2>Tvoje spravované zařízení:</h2>
 
         <ul>
@@ -30,8 +31,8 @@
             <button type="submit">Přidat</button>
         </form>
 
+        <!----------- Vyučující ----------->
         <h2>Vyučující v atelieru</h2>
-
         <ul>
             {% for ucitel in vyucujici[loop.index0] %}
                 <li> {{ ucitel.login }}
@@ -52,8 +53,8 @@
             <button type="submit">Přidat</button>
         </form>
 
+        <!----------- Uživatel ----------->
         <h2>Uživatelé v atelieru</h2>
-        
         <ul>
             {% for uzivatel in uzivatele[loop.index0] %}
                 <li> {{ uzivatel.login }}
@@ -73,6 +74,7 @@
             <input id="login" name="login" type="text" placeholder="Login uživatele">
             <button type="submit">Přidat</button>
         </form>
+    <!-- Mezera mezi jednotlivýma atelierama -->
     <br><br><br>
     {% endfor %}
 {% endblock %}
