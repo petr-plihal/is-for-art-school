@@ -47,6 +47,8 @@ class Uzivatel(db.Model, UserMixin):
     __tablename__ = 'uzivatel'
     id = db.Column(db.Integer, primary_key=True)
     login = db.Column(db.String(20), unique=True, nullable=False)
+    jmeno = db.Column(db.String(50))
+    email = db.Column(db.String(50))
     heslo = db.Column(db.String(100), nullable=False)
     role = db.Column(db.String(20), nullable=False, default = 'uzivatel')     # admin/spravce/vyucujici/reg.uzivatel
     
@@ -161,13 +163,13 @@ def insert_data(bcrypt):
         Atelier(nazev='Výtvarný ateliér'),
     ]
     uzivatele = [
-        Spravce(id = 1, login='spravce1', heslo=bcrypt.generate_password_hash('aaa'), role='spravce', id_spravce=10),
-        Vyucujici(id = 2, login='vyucuj1', heslo=bcrypt.generate_password_hash('aaa'), role='vyucujici', id_vyucujici=100),
-        Vyucujici(id = 3, login='vyucuj2', heslo=bcrypt.generate_password_hash('aaa'), role='vyucujici', id_vyucujici=101),
-        Uzivatel(id = 4, login='user1', heslo=bcrypt.generate_password_hash('aaa'), role='uzivatel'),
-        Uzivatel(id = 5, login='user2', heslo=bcrypt.generate_password_hash('aaa'), role='uzivatel'),
-        Uzivatel(id = 6, login='user3', heslo=bcrypt.generate_password_hash('aaa'), role='uzivatel'),
-        Admin(id = 100, login='admin', heslo=bcrypt.generate_password_hash('aaa'), role='admin'),
+        Spravce(   id = 1,  login='spravce1', jmeno='Samuel Stejskal',     email='samuel.stejskal@umelecka-skola.cz',     heslo=bcrypt.generate_password_hash('aaa'), role='spravce',   id_spravce=10),
+        Vyucujici( id = 2,  login='vyucuj1',  jmeno='Václav Vávra',        email='vaclav.vavra@umelecka-skola.cz',        heslo=bcrypt.generate_password_hash('aaa'), role='vyucujici', id_vyucujici=100),
+        Vyucujici( id = 3,  login='vyucuj2',  jmeno='Veronika Veselá',     email='veronika.vesela@umelecka-skola.cz',     heslo=bcrypt.generate_password_hash('aaa'), role='vyucujici', id_vyucujici=101),
+        Uzivatel(  id = 4,  login='user1',    jmeno='Radek Rous',          email='radek.rous@umelecka-skola.cz',          heslo=bcrypt.generate_password_hash('aaa'), role='uzivatel'),
+        Uzivatel(  id = 5,  login='user2',    jmeno='Radislav Růžek',      email='radislav.ruzek@umelecka-skola.cz',      heslo=bcrypt.generate_password_hash('aaa'), role='uzivatel'),
+        Uzivatel(  id = 6,  login='user3',    jmeno='Radomíra Richterová', email='radomira.richterova@umelecka-skola.cz', heslo=bcrypt.generate_password_hash('aaa'), role='uzivatel'),
+        Admin(     id = 100, login='admin',   jmeno='Adam Anderle',        email='adam.anderle@umelecka-skola.cz',        heslo=bcrypt.generate_password_hash('aaa'), role='admin'),
     ]
     
     zarizeni = [
