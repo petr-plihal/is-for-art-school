@@ -606,6 +606,7 @@ def uzivatel_by_id(id_uzivatele):
       
 
 #           ----------------- Registrovaný uživatel -----------------
+# Všechna zařízení, která může uživatel vypůjčit (pro správce a admina všechna zařízení)
 @app.route('/vyhledat_zarizeni', methods=['GET'])
 @login_required
 def vyhledat_zarizeni():
@@ -641,6 +642,7 @@ def vyhledat_zarizeni():
     
     return render_template('registrovany_uzivatel/vyhledat_zarizeni.html', zarizeni_seznam=zarizeni_seznam, typy=typy, ateliery=ateliery)
 
+# Seznam aktivních a historických rezervací/výpůjček pro uživatele
 @app.route('/moje_rezervace')
 @login_required
 def moje_rezervace():
@@ -648,6 +650,7 @@ def moje_rezervace():
     vracene = ziskat_vracene_vypujcky(current_user.id)
     return render_template('registrovany_uzivatel/moje_rezervace.html', aktivni=aktivni, vracene=vracene)
 
+# Provede pokud o rezervaci zařízení
 @app.route('/zarizeni/<int:id_zarizeni>/rezervuj', methods=['POST'])
 @login_required
 def rezervuj_zarizeni(id_zarizeni):
@@ -661,12 +664,8 @@ def rezervuj_zarizeni(id_zarizeni):
         - Data nemůžou být stejná
         - Datum začátku musí být dříve než datum konce
         - Rezervace nesmí být v konfliktu s jinou rezervací
-
-    Detaily/rozšíření/nice to have:
-        - Datum začátku musí být alespoň o X minut/hodin/dní později než aktuální čas
-
     '''
-    # Získání dat z formuláře
+    # Získání dat z formuláře a převod na MySQL formát
     datum_od = request.form.get('datum_od')
     datum_od = datetime.strptime(datum_od, '%Y-%m-%dT%H:%M')
 
@@ -674,7 +673,6 @@ def rezervuj_zarizeni(id_zarizeni):
     datum_do = datetime.strptime(datum_do, '%Y-%m-%dT%H:%M')
 
     id_uzivatele = current_user.id
-    id_zarizeni = id_zarizeni
 
     # Kontrola oprávnění uživatele k rezervaci/vypůjčení zařízení
     if not muze_rezervovat_zarizeni(id_zarizeni=id_zarizeni, id_uzivatele=id_uzivatele):
@@ -689,8 +687,10 @@ def rezervuj_zarizeni(id_zarizeni):
     # Vytvoření rezervace
     rezervace_zarizeni(id_zarizeni=id_zarizeni, id_uzivatele=id_uzivatele, datum_od=datum_od, datum_do=datum_do)
     
+    # Výpis zprávy o úspěšné rezervaci
     zarizeni = hledani_zarizeni(id_zarizeni=id_zarizeni)
     flash(f'Zařízení "{zarizeni.nazev}" bylo úspěšně rezervováno od {datum_od.strftime("%Y-%m-%d %H:%M")} do {datum_do.strftime("%Y-%m-%d %H:%M")}.', 'success')
+    
     return redirect(url_for('zarizeni', id_zarizeni=id_zarizeni))
 
 @app.route('/zarizeni/<int:id_zarizeni>')
