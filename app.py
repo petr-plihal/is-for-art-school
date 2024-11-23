@@ -723,6 +723,31 @@ def zarizeni(id_zarizeni):
 
     return render_template('registrovany_uzivatel/zarizeni.html', zarizeni=zarizeni, aktualni_datum_cas=aktualni_datum_cas, rezervace=rezervace)
 
+@app.route('/profil/<int:id_uzivatele>', methods=['GET'])
+@login_required
+def profil(id_uzivatele):
+
+    uzivatel = Uzivatel.query.filter_by(id=id_uzivatele).first()
+
+    if not uzivatel:
+        flash('Uživatel nebyl nalezen', 'danger')
+        return redirect(url_for('index'))
+
+    role = uzivatel.role
+
+    if role == 'uzivatel':
+        ateliery = ziskat_ateliery_uzivatele(id_uzivatele)
+        return render_template('registrovany_uzivatel/profil.html', uzivatel=uzivatel, role=role, ateliery=ateliery)
+    elif role == 'vyucujici':
+        zarizeni = get_users_devices(uzivatel.id_vyucujici)
+        ateliery = ziskat_ateliery_uzivatele(id_uzivatele)
+        return render_template('registrovany_uzivatel/profil.html', uzivatel=uzivatel, role=role, ateliery=ateliery, zarizeni=zarizeni)
+    elif role == 'spravce':
+        ateliery = ziskat_ateliery_uzivatele(id_uzivatele)
+        return render_template('registrovany_uzivatel/profil.html', uzivatel=uzivatel, role=role, ateliery=ateliery)
+    else:
+        return render_template('registrovany_uzivatel/profil.html', uzivatel=uzivatel, role=role)
+
 #           -----------------  -----------------
 @app.route('/vypujcky')
 def vypujcky():
