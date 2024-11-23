@@ -36,7 +36,7 @@ def load_user(user_id):
 
 @app.route('/')
 def index():
-    return render_template('home.html')
+    return render_template('index.html')
 
 # Regristace noveho uzivatele v systemu
 @app.route('/register', methods=['GET', 'POST'])
@@ -87,7 +87,7 @@ def login():
 def logout():
     logout_user()
     flash('Byl jste odhlášen', 'success')
-    return redirect(url_for('home'))
+    return redirect(url_for('index'))
 
 @app.route('/profile')
 @login_required
@@ -145,7 +145,7 @@ def role_required(roles):
                 if current_user.role == r:
                     return f(*args, **kwargs)
             flash('Nemáte přístupová práva na tuto stránku', 'danger')
-            return redirect(url_for('home'))
+            return redirect(url_for('index'))
         return decorated_function
     return decorator
 
@@ -173,7 +173,7 @@ def zarizeni_by_id(id_zarizeni):
     
     if not kontrola_pristupu_vyucujici(current_user.id, id_zarizeni):
         flash('Nemáte přístupová práva na tuto stránku', 'danger')
-        return redirect(url_for('home'))
+        return redirect(url_for('index'))
     
     if request.method == 'GET':
         return render_template('vyucujici/zarizeni_by_id.html', zarizeni=zarizeni, typ=typ, navraceni=navraceni)
@@ -238,7 +238,7 @@ def zarizeni_by_id(id_zarizeni):
 def delete_navraceni(id_zarizeni, id_navraceni):
     if not kontrola_pristupu_vyucujici(current_user.id, id_zarizeni):
         flash('Nemáte přístupová práva na tuto stránku', 'danger')
-        return redirect(url_for('home'))
+        return redirect(url_for('index'))
     
     date_to_delete = Navraceni.query.filter_by(id=id_navraceni).first_or_404()
     count = Navraceni.query.filter_by(id_zarizeni=id_zarizeni).filter_by(vraceni=date_to_delete.vraceni).count()
@@ -324,7 +324,7 @@ def zarizeni_pridat():
 def zarizeni_smazat(id_zarizeni):
     if not kontrola_pristupu_vyucujici(current_user.id, id_zarizeni):
         flash('Nemáte přístupová práva na tuto stránku', 'danger')
-        return redirect(url_for('home'))
+        return redirect(url_for('index'))
     
     # Pokud je zařízení právě vypůjčené nebo rezervované nelze jej smazat
     if Rezervace.query.filter_by(id_zarizeni=id_zarizeni).filter(or_(Rezervace.stav=='Rezervovano', Rezervace.stav=='Vypujceno')).first():
@@ -344,7 +344,7 @@ def zarizeni_zakazat(id_zarizeni):
     zarizeni_zakazat = Zarizeni.query.filter_by(id=id_zarizeni).first_or_404()    
     if not kontrola_pristupu_vyucujici(current_user.id, zarizeni_zakazat.id):
         flash('Nemáte přístupová práva na tuto stránku', 'danger')
-        return redirect(url_for('home'))
+        return redirect(url_for('index'))
     
     # Pokud je zařízení již rezervováno k vypůjčení nelze jej zakázat
     if Rezervace.query.filter_by(id_zarizeni=id_zarizeni).filter(Rezervace.stav=='Rezervovano').first():
@@ -364,7 +364,7 @@ def zarizeni_zakazat(id_zarizeni):
 def zarizeni_uzivatele_upravit(id_zarizeni):
     if not kontrola_pristupu_vyucujici(current_user.id, id_zarizeni):
         flash('Nemáte přístupová práva na tuto stránku', 'danger')
-        return redirect(url_for('home'))
+        return redirect(url_for('index'))
     
     zarizeni = Zarizeni.query.filter_by(id=id_zarizeni).first_or_404()
     
@@ -385,7 +385,7 @@ def zarizeni_uzivatel_pridat(id_zarizeni, id_uzivatele):
 
     if not kontrola_pristupu_vyucujici(current_user.id, id_zarizeni):
         flash('Nemáte přístupová práva na tuto stránku', 'danger')
-        return redirect(url_for('home'))
+        return redirect(url_for('index'))
     
     pridat_zaznam_zarizeni_uzivatel(id_zarizeni, id_uzivatele)
 
@@ -399,7 +399,7 @@ def zarizeni_uzivatel_odebrat(id_zarizeni, id_uzivatele):
 
     if not kontrola_pristupu_vyucujici(current_user.id, id_zarizeni):
         flash('Nemáte přístupová práva na tuto stránku', 'danger')
-        return redirect(url_for('home'))
+        return redirect(url_for('index'))
     
     odebrat_zaznam_zarizeni_uzivatel(id_zarizeni, id_uzivatele)
     
@@ -604,9 +604,6 @@ def uzivatel_by_id(id_uzivatele):
         flash('Uživatel byl smazán', 'success')
         return redirect(url_for('admin'))  
       
-@app.route('/home')
-def home():
-    return render_template('home.html')
 
 @app.route('/search_devices', methods=['GET'])
 @login_required
