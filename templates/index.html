@@ -1,9 +1,17 @@
 {%extends "base.html"%}
 
-{%block head%}
+{% block head %}
+    <title>Home</title>
+{% endblock %}
 
-{%endblock%}
+{% block navbar %}
+    
+{% endblock %}
 
-{%block body%}
-
-{%endblock%}
+{% block body %}
+    {% if current_user.is_authenticated %}
+        <h2>Je přihlášen uživatel: {{ current_user.login }}</h2>
+    {% else %}
+        <h2>Nejste přihlášen, pro využívání systému se přihlaste nebo zaregistrujte</h2>
+    {% endif %}
+{% endblock %}
