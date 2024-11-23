@@ -93,7 +93,7 @@ def logout():
 @login_required
 def profile():
     rezervace = Rezervace.query.filter_by(id_uzivatel=current_user.id).all()
-    return render_template('user/profile.html', rezervace=rezervace)
+    return render_template('registrovany_uzivatel/profile.html', rezervace=rezervace)
 
 @app.route('/user_change', methods=['GET', 'POST'])
 @login_required
@@ -605,9 +605,10 @@ def uzivatel_by_id(id_uzivatele):
         return redirect(url_for('admin'))  
       
 
-@app.route('/search_devices', methods=['GET'])
+#           ----------------- Registrovaný uživatel -----------------
+@app.route('/vyhledat_zarizeni', methods=['GET'])
 @login_required
-def search_devices():
+def vyhledat_zarizeni():
     nazev = request.args.get('nazev')
     id_typ = request.args.get('id_typ')
     id_atelier = request.args.get('id_atelier')
@@ -638,19 +639,18 @@ def search_devices():
     typy = ziskat_vsechny_typy()
     ateliery = seznam_atelieru()
     
-    return render_template('user/search_devices.html', zarizeni_seznam=zarizeni_seznam, typy=typy, ateliery=ateliery)
+    return render_template('registrovany_uzivatel/vyhledat_zarizeni.html', zarizeni_seznam=zarizeni_seznam, typy=typy, ateliery=ateliery)
 
-@app.route('/my_borrows')
+@app.route('/moje_rezervace')
 @login_required
-def my_borrows():
+def moje_rezervace():
     aktivni = ziskat_aktivni_vypujcky(current_user.id)
     vracene = ziskat_vracene_vypujcky(current_user.id)
-    return render_template('user/my_borrows.html', aktivni=aktivni, vracene=vracene)
+    return render_template('registrovany_uzivatel/moje_rezervace.html', aktivni=aktivni, vracene=vracene)
 
-
-@app.route('/device/<int:device_id>/reserve', methods=['POST'])
+@app.route('/zarizeni/<int:id_zarizeni>/rezervuj', methods=['POST'])
 @login_required
-def reserve_device(device_id):
+def rezervuj_zarizeni(id_zarizeni):
     '''
     Aby šlo zařízení rezervovat, musí být splněny následující podmínky:
     - Uživatel musí být přihlášen (@login_required)
@@ -674,35 +674,34 @@ def reserve_device(device_id):
     datum_do = datetime.strptime(datum_do, '%Y-%m-%dT%H:%M')
 
     id_uzivatele = current_user.id
-    id_zarizeni = device_id
+    id_zarizeni = id_zarizeni
 
     # Kontrola oprávnění uživatele k rezervaci/vypůjčení zařízení
     if not muze_rezervovat_zarizeni(id_zarizeni=id_zarizeni, id_uzivatele=id_uzivatele):
         flash('Nemáte oprávnění rezervovat toto zařízení.', 'danger')
-        return redirect(url_for('device', device_id=device_id))
+        return redirect(url_for('zarizeni', id_zarizeni=id_zarizeni))
 
     # Validace času rezervace
     if not je_validni_datum_rezervace(datum_od=datum_od, datum_do=datum_do, id_zarizeni=id_zarizeni):
         flash('Rezervace není možná ve zvoleném čase.', 'danger')
-        return redirect(url_for('device', device_id=device_id))
+        return redirect(url_for('zarizeni', id_zarizeni=id_zarizeni))
 
     # Vytvoření rezervace
     rezervace_zarizeni(id_zarizeni=id_zarizeni, id_uzivatele=id_uzivatele, datum_od=datum_od, datum_do=datum_do)
     
     zarizeni = hledani_zarizeni(id_zarizeni=id_zarizeni)
     flash(f'Zařízení "{zarizeni.nazev}" bylo úspěšně rezervováno od {datum_od.strftime("%Y-%m-%d %H:%M")} do {datum_do.strftime("%Y-%m-%d %H:%M")}.', 'success')
-    return redirect(url_for('device', device_id=device_id))
+    return redirect(url_for('zarizeni', id_zarizeni=id_zarizeni))
 
-
-@app.route('/device/<int:device_id>')
+@app.route('/zarizeni/<int:id_zarizeni>')
 @login_required
-def device(device_id):
+def zarizeni(id_zarizeni):
 
-    zarizeni = hledani_zarizeni(id_zarizeni=device_id)
+    zarizeni = hledani_zarizeni(id_zarizeni=id_zarizeni)
 
     if not zarizeni:
         flash('Zařízení nebylo nalezeno', 'danger')
-        return redirect(url_for('search_devices'))
+        return redirect(url_for('vyhledat_zarizeni'))
 
     if zjisteni_stavu_zarizeni(zarizeni.id, current_user.id) == "Vypujceno":
         zarizeni.akce = "zobrazit_vypujcku"
@@ -716,8 +715,15 @@ def device(device_id):
 
     aktualni_datum_cas = datetime.now().strftime('%Y-%m-%d %H:%M')
 
-    return render_template('user/device.html', zarizeni=zarizeni, aktualni_datum_cast=aktualni_datum_cas)
+    # Načtení existujících rezervací pro dané zařízení
+    rezervace = Rezervace.query.filter(
+        Rezervace.id_zarizeni == id_zarizeni,
+        Rezervace.datum_do >= datetime.now()
+    ).all()
 
+    return render_template('registrovany_uzivatel/zarizeni.html', zarizeni=zarizeni, aktualni_datum_cas=aktualni_datum_cas, rezervace=rezervace)
+
+#           -----------------  -----------------
 @app.route('/vypujcky')
 def vypujcky():
     vypujcky = Rezervace.query.filter_by(id_vyucujici=current_user.id_vyucujici).all()

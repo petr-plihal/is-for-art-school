@@ -8,34 +8,31 @@
 {% endblock %}
 
 {% block body %}
-    <h1>Detail zařízení</h1>
-    <p><strong>Název:</strong> {{ zarizeni.nazev }}</p>
+    <h1>{{ zarizeni.nazev }}</h1>
+
+    <h2>Detaily</h2>
     <p><strong>Typ:</strong> {{ zarizeni.typ.nazev }}</p>
     <p><strong>Ateliér:</strong> {{ zarizeni.atelier.nazev }}</p>
     <p><strong>Vyučující:</strong> {{ zarizeni.vyucujici.login }}</p>
-    <p><strong>Povoleno:</strong> {{ 'Ano' if zarizeni.povolene else 'Ne' }}</p>
+    <!--<p><strong>Povoleno:</strong> {{ 'Ano' if zarizeni.povolene else 'Ne' }}</p>-->
     <p><strong>Maximální doba výpůjčky:</strong> {{ zarizeni.max_doba_vypujcky }} dní</p>
     <p><strong>Rok výroby:</strong> {{ zarizeni.rok_vyroby.strftime('%Y-%m-%d') if zarizeni.rok_vyroby else 'N/A' }}</p>
     <p><strong>Datum nákupu:</strong> {{ zarizeni.datum_nakupu.strftime('%Y-%m-%d') if zarizeni.datum_nakupu else 'N/A' }}</p>
 
-    <h2>Rezervace</h2>
-
+    <h2>Rezervovat</h2>
     {% if zarizeni.akce == "zobrazit_vypujcku" %}
 
         <p>Rezervace není možná, protože již máte výpůjčku tohoto zařízení.</p>
-        <a href="{{ url_for('my_borrows') }}"><button>Zobrazit mou výpůjčku</button></a>
+        <a href="{{ url_for('moje_rezervace') }}"><button>Zobrazit mou výpůjčku</button></a>
 
     {% elif zarizeni.akce == "zobrazit_rezervaci" %}
 
         <p>Rezervace není možná, protože již máte rezervaci tohoto zařízení.</p>
-        <a href="{{ url_for('my_borrows') }}"><button>Zobrazit mou rezervaci</button></a>
+        <a href="{{ url_for('moje_rezervace') }}"><button>Zobrazit mou rezervaci</button></a>
 
     {% elif zarizeni.akce == "rezervovat" %}
 
-
-    Aktuální datum: {{ aktualni_datum_cas }}
-
-        <form action="{{ url_for('reserve_device', device_id=zarizeni.id) }}" method="post">
+        <form action="{{ url_for('rezervuj_zarizeni', id_zarizeni=zarizeni.id) }}" method="post">
             <label for="datum_od">Začátek rezervace:</label>
             <input type="datetime-local" id="datum_od" name="datum_od" value="{{ aktualni_datum_cas }}" required>
             <br>
@@ -45,15 +42,32 @@
             <button type="submit">Rezervovat</button>
         </form>
 
+        <h2>Přehled rezervací</h2>
+        {% if rezervace %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Začátek</th>
+                        <th>Konec</th>
+                        <th>Stav</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for rez in rezervace %}
+                    <tr>
+                        <td>{{ rez.datum_od.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td>{{ rez.datum_do.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td>{{ rez.stav }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>Žádné záznamy</p>
+        {% endif %}
+
     {% else %}
-
         <p>Není k dispozici</p>
-
     {% endif %}
-
-
-    <h2>Přehled rezervací a výpůjček</h2>
-
-    
 
 {% endblock %}

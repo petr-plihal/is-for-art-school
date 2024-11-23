@@ -9,12 +9,13 @@
 
 {% block body %}
 
-    <h1>Aktivní výpůjčky</h1>
+    <h1>Rezervace</h1>
+    <h2>Aktivní</h2>
     {% set vypujcky_seznam = aktivni %}
-    {% include 'borrow_table_template.html' %}
+    {% include 'template_tabulka_rezervaci.html' %}
 
-    <h1>Historické výpůjčky</h1>
+    <h2>Historické</h2>
     {% set vypujcky_seznam = vracene %}
-    {% include 'borrow_table_template.html' %}
+    {% include 'template_tabulka_rezervaci.html' %}
 
 {% endblock %}
