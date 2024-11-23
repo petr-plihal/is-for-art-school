@@ -2,6 +2,7 @@ from datetime import datetime
 from model import db, Uzivatel, Rezervace, Zarizeni, zarizeni_uzivatel
 from usecase import uprava_uzivatele
 from sqlalchemy import or_
+from sqlalchemy.orm import aliased
 
 #           ----------- Registrovaný uživatel -----------
 # Upravení profilu (loginu nebo hesla)
@@ -146,18 +147,24 @@ def hledani_zarizeni(id_zarizeni=None, nazev=None, id_typ=None, id_atelier=None,
         zarizeni = zarizeni.filter(Zarizeni.id_atelier.in_([atelier.id for atelier in uzivatelovy_ateliery]))
 
         # Vypůjčitelné zařízení dále musí mít atribut povolené na true, nebo musí existovat záznam o povolení vypůjčení v tabulce zarizeni_uzivatel pro dané zařízení a uživatele
-        zarizeni = zarizeni.outerjoin(zarizeni_uzivatel, Zarizeni.id == zarizeni_uzivatel.c.id_zarizeni).filter(
+
+        zarizeni_uzivatel_alias = aliased(zarizeni_uzivatel) # Vytvoření aliasu pro tabulku zarizeni_uzivatel
+        
+        # Provádění outer join mezi tabulkou Zarizeni a aliasem zarizeni_uzivatel_alias
+        zarizeni = zarizeni.outerjoin(zarizeni_uzivatel_alias, Zarizeni.id == zarizeni_uzivatel_alias.c.id_zarizeni).filter(
             or_(
+                # Filtrace zařízení, která mají atribut povolené na true
                 Zarizeni.povolene == True,
-                zarizeni_uzivatel.c.id_uzivatel == id_uzivatele
+                # Nebo filtrace zařízení, která mají záznam v tabulce zarizeni_uzivatel pro daného uživatele
+                zarizeni_uzivatel_alias.c.id_uzivatel == id_uzivatele
             )
         )
     
     if nazev:
         zarizeni = zarizeni.filter(Zarizeni.nazev.ilike(f"%{nazev}%"))
     if id_typ:
-        zarizeni = zarizeni.filter_by(id_typ=id_typ)
+        zarizeni = zarizeni.filter(Zarizeni.id_typ == id_typ)
     if id_atelier:
-        zarizeni = zarizeni.filter_by(id_atelier=id_atelier)
+        zarizeni = zarizeni.filter(Zarizeni.id_atelier == id_atelier)
         
     return zarizeni.all()
