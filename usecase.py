@@ -2,7 +2,7 @@
 #       Projekt do IIS - Umělecká škola
 #       Autoři:
 #        - Jakub Valeš, xvales04
-#        - Petr Plíhla, xpliha02
+#        - Petr Plíhal, xpliha02
 #        - Matrin Rybnikář, xrybni10
 #                                     24.11.2024
 #           -----------------  -----------------
