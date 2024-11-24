@@ -47,7 +47,7 @@ def spravce_smazat(uzivatel):
     db.session.commit()
     
 # Odebrání vyučujícího z atelieru
-def atelier_vyucujici_smazat(id_atelier, id_uzivatele):
+def atelier_vyucujici_smazat(id_uzivatele, id_atelier):
     id_vyucujici = Vyucujici.query.filter_by(id=id_uzivatele).first().id_vyucujici
     db.session.execute(
     atelier_vyucujici.delete().where(
@@ -58,7 +58,7 @@ def atelier_vyucujici_smazat(id_atelier, id_uzivatele):
     db.session.commit()
 
 # Odebrání správce z atelieru    
-def atelier_spravce_smazat(id_atelier, id_uzivatele):
+def atelier_spravce_smazat(id_uzivatele, id_atelier):
     id_spravce = Spravce.query.filter_by(id=id_uzivatele).first().id_spravce
     db.session.execute(
     atelier_spravce.delete().where(
@@ -69,7 +69,7 @@ def atelier_spravce_smazat(id_atelier, id_uzivatele):
     db.session.commit()
 
 # Odebrání uživatele z atelieru
-def atelier_uzivatel_smazat(id_atelier, id_uzivatele):
+def atelier_uzivatel_smazat(id_uzivatele, id_atelier):
     db.session.execute(
     atelier_uzivatel.delete().where(
         atelier_uzivatel.c.id_uzivatel == id_uzivatele,
