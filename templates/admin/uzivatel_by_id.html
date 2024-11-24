@@ -16,6 +16,22 @@
         <input type="text" id="name" name="novy_login" value="{{uzivatel.login}}" maxlength="20">
         <input type="submit" value="Změnit login">
     </form>
+
+    <form method="POST" action="/admin/uzivatel/{{uzivatel.id}}">
+        <input type="hidden" name="uzivatel_email" value="true">
+        <label for="name">Email:</label>
+        <input type="text" id="name" name="novy_email" placeholder="{{uzivatel.email}}" maxlength="50">
+        <input type="submit" value="Změnit email">
+    </form>
+
+
+    <form method="POST" action="/admin/uzivatel/{{uzivatel.id}}">
+        <input type="hidden" name="uzivatel_jmeno" value="true">
+        <label for="name">Jméno:</label>
+        <input type="text" id="name" name="nove_jmeno" placeholder="{{uzivatel.jmeno}}" maxlength="50">
+        <input type="submit" value="Změnit jméno">
+    </form>
+
     <form method="POST" action="/admin/uzivatel/{{uzivatel.id}}">
         <input type="hidden" name="uzivatel_heslo" value="true">
         <label for="name">Nové heslo</label>

@@ -101,13 +101,12 @@ def user_change():
     if request.method == 'GET':
         return render_template('auth/user_change.html')
     elif request.method == 'POST':
-        new_login = request.form.get('new_login')
         new_name = request.form.get('new_name')
         new_email = request.form.get('new_email')
         new_password = request.form.get('new_pwd')
         new_password_check = request.form.get('new_pwd2')
         
-        if not new_login and not new_password and not new_name and not new_email:
+        if not new_password and not new_name and not new_email:
             flash('Nebyly zadány žádné nové údaje', 'danger')
             return render_template('auth/user_change.html')
             
@@ -118,12 +117,6 @@ def user_change():
             else:
                 flash('Hesla se neshodují', 'danger')
                 return render_template('auth/user_change.html')
-                
-        if new_login:
-            if Uzivatel.query.filter_by(login=new_login).first():
-                flash('Uživatel s daným loginem již existuje', 'danger')
-                return render_template('auth/user_change.html')
-            current_user.login = new_login
         
         if new_name:
             current_user.jmeno = new_name
@@ -532,6 +525,26 @@ def uzivatel_by_id(id_uzivatele):
             uzivatel.login = novy_login
             db.session.commit()
             flash('Login byl změněn', 'success')
+        return redirect(url_for('uzivatel_by_id', id_uzivatele=id_uzivatele))
+
+    # Změna jmena
+    elif request.method == 'POST' and "uzivatel_jmeno" in request.form:
+        nove_jmeno = request.form.get('nove_jmeno')
+        uzivatel.jmeno = nove_jmeno
+        db.session.commit()
+        flash('Jmeno bylo změněno', 'success')
+        return redirect(url_for('uzivatel_by_id', id_uzivatele=id_uzivatele))
+
+    # Změna emailu
+    elif request.method == 'POST' and "uzivatel_email" in request.form:
+        novy_email = request.form.get('novy_email')
+        if Uzivatel.query.filter_by(email=novy_email).first():
+            flash('Uživatel s daným emailem již existuje', 'danger')
+            return redirect(url_for('uzivatel_by_id', id_uzivatele=id_uzivatele))
+        else:
+            uzivatel.email = novy_email
+            db.session.commit()
+            flash('Email byl změněn', 'success')
         return redirect(url_for('uzivatel_by_id', id_uzivatele=id_uzivatele))
     
     # Změna hesla
