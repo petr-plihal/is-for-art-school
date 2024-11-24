@@ -22,38 +22,6 @@ def zaregistrovat_se(login, heslo):
     pridani_uzivatele(login=login, heslo=heslo)
 
 
-#           ----------------- Vyučující -----------------
-
-#   --- Správa zařízení ---
-# Funkce pro přidání nového zařízení
-def pridat_zarizeni(nazev, id_typ, id_atelier):
-    nove_zarizeni = Zarizeni(
-        nazev=nazev,
-        id_typ=id_typ,
-        id_atelier=id_atelier
-    )
-    db.session.add(nove_zarizeni)
-    db.session.commit()
-
-# Funkce pro odstranění zařízení
-def odstraneni_zarizeni(id_zarizeni):
-    zarizeni = Zarizeni.query.get(id_zarizeni)
-    if zarizeni:
-        db.session.delete(zarizeni)
-        db.session.commit()
-
-# Funkce pro aktualizaci existujícího zařízení
-def aktualizace_zarizeni(id_zarizeni, novy_nazev=None, novy_typ=None, novy_atelier=None):
-    zarizeni = Zarizeni.query.get(id_zarizeni)
-    if zarizeni:
-        if novy_nazev:
-            zarizeni.nazev = novy_nazev
-        if novy_typ:
-            zarizeni.id_typ = novy_typ
-        if novy_atelier:
-            zarizeni.id_atelier = novy_atelier
-        db.session.commit()
-# ------
 
 # ---- Správa seznamů skupin vypůjčení ateliéru ----
 
