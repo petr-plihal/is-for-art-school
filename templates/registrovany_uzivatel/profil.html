@@ -1,0 +1,69 @@
+{%extends "base.html"%}
+
+{% block head %}
+    <title>Uživatel {{ uzivatel.jmeno }} </title>
+{% endblock %}
+
+{% block navbar %}
+{% endblock %}
+
+{% block body %}
+
+    <h1>Profil uživatele</h1>
+
+    <h2>Detaily</h2>
+        <p><strong>Jméno:</strong> {{ uzivatel.jmeno }} </p>
+        <p><strong>Role:</strong> 
+            {% if role == 'uzivatel' %}
+                Běžný uživatel
+            {% elif role == 'vyucujici' %}
+                Vyučující
+            {% elif role == 'spravce' %}
+                Správce
+            {% elif role == 'admin' %}
+                Administrátor
+            {% endif %}
+        </p>
+        <p><strong>Login:</strong> {{ uzivatel.login }} </p>
+        <p><strong>Kontaktní e-mail:</strong> {{ uzivatel.email }}</p>
+
+    {% if role == 'uzivatel' %}
+
+        <h2>Je členem ateliérů:</h2>
+        <ul>
+            {% for atelier in ateliery %}
+                <li>{{ atelier.nazev }}</li>
+            {% endfor %}
+        </ul>
+
+    {% elif role == 'vyucujici' %}
+
+        <h2>Vyučuje v ateliérech:</h2>
+        <ul>
+            {% for atelier in ateliery %}
+                <li>{{ atelier.nazev }}</li>
+            {% endfor %}
+        </ul>
+
+        <h2>Správce zařízení:</h2>
+        <ul>
+            {% for zar in zarizeni %}
+                <li><a href="{{ url_for('zarizeni', id_zarizeni=zar.id) }}">{{ zar.nazev }}</a></li>
+            {% endfor %}
+        </ul>
+
+    {% elif role == 'spravce' %}
+
+        <h2>Spravuje ateliéry:</h2>
+        <ul>
+            {% for atelier in ateliery %}
+                <li>{{ atelier.nazev }}</li>
+            {% endfor %}
+        </ul>
+
+    {% elif role == 'admin' %}
+
+    {% endif %}
+
+
+{% endblock %}

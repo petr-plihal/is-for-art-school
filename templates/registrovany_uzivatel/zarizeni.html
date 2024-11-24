@@ -13,7 +13,7 @@
     <h2>Detaily</h2>
     <p><strong>Typ:</strong> {{ zarizeni.typ.nazev }}</p>
     <p><strong>Ateliér:</strong> {{ zarizeni.atelier.nazev }}</p>
-    <p><strong>Vyučující:</strong> {{ zarizeni.vyucujici.login }}</p>
+    <p><strong>Vlastník:</strong> <a href="{{ url_for('profil', id_uzivatele=zarizeni.vyucujici.id)}}">{{ zarizeni.vyucujici.jmeno }}</a> </p>
     <!--<p><strong>Povoleno:</strong> {{ 'Ano' if zarizeni.povolene else 'Ne' }}</p>-->
     <p><strong>Maximální doba výpůjčky:</strong> {{ zarizeni.max_doba_vypujcky }} dní</p>
     <p><strong>Rok výroby:</strong> {{ zarizeni.rok_vyroby.strftime('%Y-%m-%d') if zarizeni.rok_vyroby else 'N/A' }}</p>
