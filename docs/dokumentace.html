@@ -18,35 +18,36 @@
 
 <dl>
 	<dt>Autoøi</dt>
-	<dd>Jakub Vale¹ <!-- Nahraïte skuteèným jménem a e-mailem autora a popisem èinnosti -->
-	    <a href="mailto:xvales04@stud.fit.vutbr.cz">xvales04@stud.fit.vutbr.cz</a> -
-		popis èinnosti v týmu
+	<dd><strong>Jakub Vale¹</strong> <!-- Nahraïte skuteèným jménem a e-mailem autora a popisem èinnosti -->
+	    <a href="mailto:xvales04@stud.fit.vutbr.cz">xvales04@stud.fit.vutbr.cz</a> - <br>
+		Implementace databáze a testovacích dat, pøihla¹ování a odhla¹ování u¾ivatelù, editace profilu, vyuèující - vlo¾ení/správa zaøízení, omezení výpùjèek na zaøízení, administrátor - ..., správce ateliéru - ...
 	</dd>
-	<dd>Petr Plíhal <!-- Nahraïte skuteèným jménem a e-mailem autora a popisem èinnosti -->
-	    <a href="mailto:xpliha02@stud.fit.vutbr.cz">xpliha02@stud.fit.vutbr.cz</a> - 
-		popis èinnosti v týmu
+	<dd><strong>Petr Plíhal</strong> <!-- Nahraïte skuteèným jménem a e-mailem autora a popisem èinnosti -->
+	    <a href="mailto:xpliha02@stud.fit.vutbr.cz">xpliha02@stud.fit.vutbr.cz</a> - <br>
+		ER a usecase diagramy, základní HTML ¹ablony, reg. u¾ivatel - hledání zaøízení, stránky pro zaøízení, rezervace zaøízení, stránky pro u¾ivatele
 	</dd>
-  <dd>Martin Rybnikáø <!-- Nahraïte skuteèným jménem a e-mailem autora a popisem èinnosti -->
-	    <a href="mailto:xrybni10@stud.fit.vutbr.cz">xrybni10@stud.fit.vutbr.cz</a> - 
-		popis èinnosti v týmu
+  <dd><strong>Martin Rybnikáø</strong> <!-- Nahraïte skuteèným jménem a e-mailem autora a popisem èinnosti -->
+	    <a href="mailto:xrybni10@stud.fit.vutbr.cz">xrybni10@stud.fit.vutbr.cz</a> - <br>
+		Základní kostra Flask projektu, základní BE funkce, vyuèující - správa výpùjèek, zobrazení výpùjèek, administrátor - ..., správce ateliéru - ...
 	</dd>
 	<dt>URL aplikace</dt>
-	<dd><a href="http://www.stud.fit.vutbr.cz/~xautor01/IIS">http://www.stud.fit.vutbr.cz/~xautor01/IIS</a></dd>
-	<dd>(pokud má aplikace více vstupních stránek, napi¹te obdobnì dal¹í URL)</dd>
+	<dd><a href="http://www.stud.fit.vutbr.cz/~xvales04/IIS">http://www.stud.fit.vutbr.cz/~xvales04/IIS</a></dd>
+	<!--<dd>(pokud má aplikace více vstupních stránek, napi¹te obdobnì dal¹í URL)</dd>-->
 </dl>
 
 <h2>U¾ivatelé systému pro testování</h2>
-<p>Uveïte prosím existující zástupce <strong>v¹ech rolí u¾ivatelù</strong>.</p>
+<!--<p>Uveïte prosím existující zástupce <strong>v¹ech rolí u¾ivatelù</strong>.</p>-->
 <table>
-<tbody><tr><th>Login</th><th>Heslo</th><th>Role</th></tr>
-<tr><td>admin</td><td>admin</td><td>Administrátor</td></tr>
-<tr><td>spravce</td><td>spravce</td><td>Správce ateliéru</td></tr>
-<tr><td>vyucujici</td><td>vyucujici</td><td>Vyuèující</td></tr>
-<tr><td>pepik</td><td>pepik</td><td>Registrovaný u¾ivatel</td></tr>
-<tr><td>karlik</td><td>karlik</td><td>Neregistrovaný u¾ivatel</td></tr>
-</tbody></table>
+	<tbody><tr><th>Login</th><th>Heslo</th><th>Role</th></tr>
+		<tr><td>admin</td><td>aaa</td><td>Administrátor</td></tr>
+		<tr><td>spravce1</td><td>aaa</td><td>Správce ateliéru</td></tr>
+		<tr><td>vyucuj1</td><td>aaa</td><td>Vyuèující</td></tr>
+		<tr><td>user1</td><td>aaa</td><td>Registrovaný u¾ivatel</td></tr>
+		<tr><td></td><td></td><td>Neregistrovaný u¾ivatel</td></tr>
+	</tbody>
+</table>
 
-<p>(Diagram pøípadù u¾ití není nutné vkládat, pokud IS implementuje role a pøípady u¾ití definované zadáním.)</p> 
+<!--<p>(Diagram pøípadù u¾ití není nutné vkládat, pokud IS implementuje role a pøípady u¾ití definované zadáním.)</p> -->
 
 <h3>Video</h3>
 
@@ -55,17 +56,71 @@
 <h2>Implementace</h2>
 <p>Struèná dokumentace k implementaci, která popisuje, které èásti projektu (napø. PHP skripty) implementují jednotlivé pøípady pou¾ití.</p>
 
-<h3>Databáze</h3>
+	<strong>Implementaèní prostøedy:</strong>
+	<ul>
+		<li>Databáze - MySQL (interakce s DB pomocí PyMySQL - knihovna pro Python )</li>
+		<li>Backend - Python (Flask)</li>
+		<li>Frontend - Jinja2 (¹ablonovací systém pro jazyk Python)</li>
+	</ul>
 
-Zde vlo¾te grafické schéma relaèní databáze (tabulek v databázi).
+	<strong>Implementace pøípadù u¾ití:</strong>
+	<ul>		
+		<li><code>models.py</code> - Definice tøíd pro ORM, vèetnì v¹ech relací a vlastností a testovacích dat.</li>
+		<li><code>app.py</code> - Definice v¹ech rout a logiky pro zpracování po¾adavkù. Rozdìlené na routy dle rolí.</li>
+		<ul>
+			<li><code>vyucujici.py</code> - Pomocné funkce pro routy vyuèujícího.</li>
+			<li><code>registrovany_uzivatel.py</code> - Pomocné funkce pro registrovaného u¾ivatele.</li>
+		</ul>
+	</ul>
+
+<h3>Databáze</h3>
+<!--
+Zde vlo¾te grafické schéma relaèní databáze (tabulek v databázi).<br>
+-->
+<img src="Diagramy-ER Diagram.drawio.svg" alt="Schéma databáze" width=55%>
 
 <h2>Instalace</h2>
-
+<!--
 Struènì popi¹te: 
 <ul>
 <li>postup instalace na server,</li>
 <li>softwarové po¾adavky (verze PHP apod.),</li>
 <li>jak rozbalit, konfigurovat, inicializovat databázi, ...</li>
+</ul>
+-->
+Pro lokální hosting aplikace a databáze:<br>
+Prerekvizity:
+<ul>
+	<li>Python 3.6 a vy¹¹í (+ pip3/pip - souèástí python3)</li>
+	<li>MySQL</li>
+</ul>
+Postup:
+<ul>
+	<li>Vytvoøení databáze a u¾ivatele s právy pro databázi v MySQL (pøístupové údaje lze nastavit v souboru <code>app.py</code> v èásti s <code>app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://</code>)</li>
+
+	<li>Instalace a spu¹tìní virtuálního prostøedí</li>
+		<ul>
+			<li><code>pip3 install virtualenv</code></li>
+			<li><code>virtualenv env</code></li>
+			<li><code>source venv/bin/activate</code></li>
+		</ul>
+
+	<li>Instalace potøebných knihoven</li>
+		<ul>
+			<li><code>pip3 install -r requirements.txt</code></li>
+			<li> alternativnì: <code>pip3 install flask flask-sqlalchemy pymysql flask-bcrypt flask-login cryptography</code></li>
+		</ul>
+
+	<li>Inicializace databáze a testovacích dat</li>
+		<ul>
+			<li><code>python3 models.py</code></li>
+		</ul>
+
+	<li>Spu¹tìní aplikace</li>
+		<ul>
+			<li><code>python3 app.py</code></li>
+			<li>alternativnì: <code>flask run</code></li>
+		</ul>
 </ul>
 
 <h2>Známé problémy</h2>
