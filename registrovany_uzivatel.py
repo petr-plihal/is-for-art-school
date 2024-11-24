@@ -1,3 +1,12 @@
+#           -----------------  -----------------
+#       Projekt do IIS - Umělecká škola
+#       Autoři:
+#        - Jakub Valeš, xvales04
+#        - Petr Plíhla, xpliha02
+#        - Matrin Rybnikář, xrybni10
+#                                     24.11.2024
+#           -----------------  -----------------
+
 from datetime import datetime
 from model import db, Uzivatel, Rezervace, Zarizeni, zarizeni_uzivatel
 from usecase import uprava_uzivatele

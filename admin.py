@@ -1,3 +1,12 @@
+#           -----------------  -----------------
+#       Projekt do IIS - Umělecká škola
+#       Autoři:
+#        - Jakub Valeš, xvales04
+#        - Petr Plíhla, xpliha02
+#        - Matrin Rybnikář, xrybni10
+#                                     24.11.2024
+#           -----------------  -----------------
+
 from model import db, Vyucujici, Spravce, Atelier, atelier_vyucujici, atelier_uzivatel, atelier_spravce
 from sqlalchemy import text
 

@@ -1,3 +1,12 @@
+#           -----------------  -----------------
+#       Projekt do IIS - Umělecká škola
+#       Autoři:
+#        - Jakub Valeš, xvales04
+#        - Petr Plíhla, xpliha02
+#        - Matrin Rybnikář, xrybni10
+#                                     24.11.2024
+#           -----------------  -----------------
+
 from app import app, db, bcrypt
 from sqlalchemy import inspect
 from model import insert_data

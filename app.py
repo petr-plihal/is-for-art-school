@@ -1,3 +1,12 @@
+#           -----------------  -----------------
+#       Projekt do IIS - Umělecká škola
+#       Autoři:
+#        - Jakub Valeš, xvales04
+#        - Petr Plíhla, xpliha02
+#        - Matrin Rybnikář, xrybni10
+#                                     24.11.2024
+#           -----------------  -----------------
+
 from flask import Flask, render_template, redirect, url_for, request, session, g, flash
 from flask_login import current_user, login_user, logout_user, LoginManager, login_required
 from flask_bcrypt import Bcrypt
@@ -152,6 +161,8 @@ def role_required(roles):
             return redirect(url_for('index'))
         return decorated_function
     return decorator
+
+#           -----------------  -----------------
 
 #           ----------------- Vyučující -----------------
 # Stránka pro zobrazní všech zařízení daného vyučujícího
@@ -409,6 +420,40 @@ def zarizeni_uzivatel_odebrat(id_zarizeni, id_uzivatele):
     
     return redirect(url_for('zarizeni_uzivatele_upravit', id_zarizeni=id_zarizeni))
 
+@app.route('/vypujcky')
+def vypujcky():
+    vypujcky = Rezervace.query.filter_by(id_vyucujici=current_user.id_vyucujici).all()
+    all_users = get_all_users()
+    all_devices = get_all_device()
+    users_devices = get_users_devices(current_user.id_vyucujici)
+    return render_template('vypujcky.html', vypujcky=vypujcky, all_users=all_users, all_devices=all_devices, users_devices=users_devices)
+
+@app.route('/update_rezervace', methods=['POST'])
+def update_rezervace():
+    reservation_id = request.form.get('reservation_id')
+
+    new_status = request.form.get('status')
+    new_start_date = request.form.get('start_date')
+    new_end_date = request.form.get('end_date')
+    
+    # Aktualizace rezervace
+    reservation = Rezervace.query.get(reservation_id)
+    
+    if new_status != "_NONE_":
+        reservation.stav = new_status
+
+    if new_start_date:
+        reservation.datum_od = new_start_date
+
+    if new_end_date:
+        reservation.datum_do = new_end_date
+    
+    db.session.commit()
+    
+    return redirect(url_for('vypujcky'))
+
+#           -----------------  -----------------
+
 #           ----------------- Admin -----------------
 # Admin stránka pro zobrazení ateliérů a uživatelů a správu ateliérů
 @app.route('/admin', methods=['GET', 'POST'])
@@ -627,6 +672,8 @@ def uzivatel_by_id(id_uzivatele):
         db.session.commit()
         flash('Uživatel byl smazán', 'success')
         return redirect(url_for('admin'))  
+
+#           -----------------  -----------------
       
 
 #           ----------------- Registrovaný uživatel -----------------
@@ -777,37 +824,6 @@ def profil(id_uzivatele):
         return render_template('registrovany_uzivatel/profil.html', uzivatel=uzivatel, role=role)
 
 #           -----------------  -----------------
-@app.route('/vypujcky')
-def vypujcky():
-    vypujcky = Rezervace.query.filter_by(id_vyucujici=current_user.id_vyucujici).all()
-    all_users = get_all_users()
-    all_devices = get_all_device()
-    users_devices = get_users_devices(current_user.id_vyucujici)
-    return render_template('vypujcky.html', vypujcky=vypujcky, all_users=all_users, all_devices=all_devices, users_devices=users_devices)
-
-@app.route('/update_rezervace', methods=['POST'])
-def update_rezervace():
-    reservation_id = request.form.get('reservation_id')
-
-    new_status = request.form.get('status')
-    new_start_date = request.form.get('start_date')
-    new_end_date = request.form.get('end_date')
-    
-    # Aktualizace rezervace
-    reservation = Rezervace.query.get(reservation_id)
-    
-    if new_status != "_NONE_":
-        reservation.stav = new_status
-
-    if new_start_date:
-        reservation.datum_od = new_start_date
-
-    if new_end_date:
-        reservation.datum_do = new_end_date
-    
-    db.session.commit()
-    
-    return redirect(url_for('vypujcky'))
 
     # ---- Správce ----
 @app.route('/atelier')
