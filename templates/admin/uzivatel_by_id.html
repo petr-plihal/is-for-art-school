@@ -13,13 +13,13 @@
     <form method="POST" action="/admin/uzivatel/{{uzivatel.id}}">
         <input type="hidden" name="uzivatel_login" value="true">
         <label for="name">Nový login:</label>
-        <input type="text" id="name" name="novy_login" value="{{uzivatel.login}}">
+        <input type="text" id="name" name="novy_login" value="{{uzivatel.login}}" maxlength="20">
         <input type="submit" value="Změnit login">
     </form>
     <form method="POST" action="/admin/uzivatel/{{uzivatel.id}}">
         <input type="hidden" name="uzivatel_heslo" value="true">
         <label for="name">Nové heslo</label>
-        <input type="password" id="name" name="nove_heslo":>
+        <input type="password" id="name" name="nove_heslo" maxlength="30">
         <input type="submit" value="Změnit heslo">
     </form>
 

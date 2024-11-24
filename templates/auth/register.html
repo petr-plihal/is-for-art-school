@@ -11,9 +11,9 @@
 <h1>Zaregistrujte se</h1>
 <form method="POST" action="{{url_for('register')}}">
     <label for="username">Uživatelský login:</label><br>
-    <input type="text" id="login" name="login" required><br>
+    <input type="text" id="login" name="login" maxlength="20" required><br>
     <label for="password">Heslo:</label><br>
-    <input type="password" id="pwd" name="pwd" required><br>
+    <input type="password" id="pwd" name="pwd" maxlength="30" required><br>
     <input type="submit" value="login">
 </form>
 {% endblock %}

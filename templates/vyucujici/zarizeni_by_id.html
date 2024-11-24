@@ -14,7 +14,7 @@
     <form method="POST" action="/zarizeni_sprava/{{zarizeni.id}}" name="data_change">
         <input type="hidden" name="data_change" value="true">
         <label for="name">Název:</label>
-        <input type="text" id="name" name="name" value="{{zarizeni.nazev}}"><br>
+        <input type="text" id="name" name="name" value="{{zarizeni.nazev}}" maxlength="100"><br>
         <label for="type">Typ:</label>
         <select name="typ" id="typ">
             {% for typ in typ %}
