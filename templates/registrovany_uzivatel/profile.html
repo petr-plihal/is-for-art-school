@@ -10,7 +10,8 @@
 {% block body %}
     <h1>Profil uživatele</h1>
     Login: {{current_user.login}}<br>
-    UserID: {{current_user.id}}<br>
+    Jméno: {{current_user.jmeno}}<br>
+    Email: {{current_user.email}}<br>
     Role: {{current_user.role}}<br>
     <a href="{{url_for('user_change')}}">Změnit údaje</a><br>
 

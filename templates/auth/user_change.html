@@ -12,7 +12,13 @@
     <p>Zadejte údaje, které chcete změnit:</p>
     <form method="POST" action="/user_change">
         <label for="username">Nový uživatelský login:</label><br>
-        <input type="text" id="login" name="new_login" maxlength="20"><br>
+        <input type="text" id="login" name="new_login" maxlength="20" placeholder="{{current_user.login}}"><br>
+        <br>
+        <label for="username">Jméno:</label><br>
+        <input type="text" id="login" name="new_name" maxlength="50" placeholder="{{current_user.jmeno}}"><br>
+        <label for="username">Email:</label><br>
+        <input type="text" id="login" name="new_email" maxlength="50" placeholder="{{current_user.email}}"><br>
+        <br>
         <label for="password">Nové heslo:</label><br>
         <input type="password" id="pwd" name="new_pwd" maxlength="30"><br>
         <label for="password">Znovu nové heslo:</label><br>

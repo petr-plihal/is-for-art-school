@@ -102,10 +102,12 @@ def user_change():
         return render_template('auth/user_change.html')
     elif request.method == 'POST':
         new_login = request.form.get('new_login')
+        new_name = request.form.get('new_name')
+        new_email = request.form.get('new_email')
         new_password = request.form.get('new_pwd')
         new_password_check = request.form.get('new_pwd2')
         
-        if not new_login and not new_password:
+        if not new_login and not new_password and not new_name and not new_email:
             flash('Nebyly zadány žádné nové údaje', 'danger')
             return render_template('auth/user_change.html')
             
@@ -122,6 +124,15 @@ def user_change():
                 flash('Uživatel s daným loginem již existuje', 'danger')
                 return render_template('auth/user_change.html')
             current_user.login = new_login
+        
+        if new_name:
+            current_user.jmeno = new_name
+        
+        if new_email:
+            if Uzivatel.query.filter_by(email=new_email).first():
+                flash('Uživatel s daným emailem již existuje', 'danger')
+                return render_template('auth/user_change.html')
+            current_user.email = new_email
         
         db.session.commit()
         flash('Úspěšně změněno', 'success')
