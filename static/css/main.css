@@ -1,7 +1,11 @@
 body{
     margin: 0;
     font-family: sans-serif;
-    font-size: small;
+    font-size: medium;
+}
+
+.body_content {
+    padding: 1%;
 }
 
 /* Navigační panel */
@@ -29,6 +33,24 @@ body{
 .active {
     background-color: #008dce;
 }
+
+/* Tabulky */
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+th {
+    background-color: #f2f2f2;
+}
+tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
 
 /* Flash zprávy */
 .flash-messages {
