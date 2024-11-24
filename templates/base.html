@@ -26,8 +26,11 @@
             {% if current_user.is_authenticated %}
                 <li style="float:right"><a class="active" href="{{url_for('profile')}}">Profil</a></li>
                 <li style="float:right"><a href="{{url_for('logout')}}">Logout</a></li>
-                <li><a href="{{url_for('vyhledat_zarizeni')}}">Hledat zařízení</a></li>
-                <li><a href="{{url_for('moje_rezervace')}}">Moje rezervace</a></li>
+
+                {% if current_user.role != 'admin' %}
+                    <li><a href="{{url_for('vyhledat_zarizeni')}}">Hledat zařízení</a></li>
+                    <li><a href="{{url_for('moje_rezervace')}}">Moje rezervace</a></li>
+                {% endif %}
 
                 {% if current_user.role in ["vyucujici", "admin"] %}
                     <li><a href="{{url_for('zarizeni_sprava')}}">Moje zařízení</a></li>
@@ -66,8 +69,11 @@
                 </div>
             {% endif %}
         {% endwith %}
-        {% block body %}{% endblock %}
     </div>
     
+    <div class="body_content">
+        {% block body %}{% endblock %}
+    </div>
+
 </body>
 </html>

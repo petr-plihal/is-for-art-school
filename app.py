@@ -633,6 +633,7 @@ def uzivatel_by_id(id_uzivatele):
 # Všechna zařízení, která může uživatel vypůjčit (pro správce a admina všechna zařízení)
 @app.route('/vyhledat_zarizeni', methods=['GET'])
 @login_required
+@role_required(['uzivatel', 'vyucujici', 'spravce'])
 def vyhledat_zarizeni():
     nazev = request.args.get('nazev')
     id_typ = request.args.get('id_typ')
@@ -668,6 +669,7 @@ def vyhledat_zarizeni():
 
 # Seznam aktivních a historických rezervací/výpůjček pro uživatele
 @app.route('/moje_rezervace')
+@role_required(['uzivatel', 'vyucujici', 'spravce'])
 @login_required
 def moje_rezervace():
     aktivni = ziskat_aktivni_vypujcky(current_user.id)
@@ -717,6 +719,7 @@ def rezervuj_zarizeni(id_zarizeni):
     
     return redirect(url_for('zarizeni', id_zarizeni=id_zarizeni))
 
+# Zobrazení detailu zařízení
 @app.route('/zarizeni/<int:id_zarizeni>')
 @login_required
 def zarizeni(id_zarizeni):
@@ -747,6 +750,7 @@ def zarizeni(id_zarizeni):
 
     return render_template('registrovany_uzivatel/zarizeni.html', zarizeni=zarizeni, aktualni_datum_cas=aktualni_datum_cas, rezervace=rezervace)
 
+# Zobrazení detailu profilů (veřejné profilové stránky - hlavně pro kontakt vyučujících)
 @app.route('/profil/<int:id_uzivatele>', methods=['GET'])
 @login_required
 def profil(id_uzivatele):
