@@ -54,9 +54,9 @@
                 <td><a href="{{ url_for('profil', id_uzivatele=zarizeni.vyucujici.id) }}">{{ zarizeni.vyucujici.jmeno }}</a></td>
                 <td>
                     {% if zarizeni.akce == "zobrazit_vypujcku" %}
-                        <a href="{{ url_for('moje_rezervace') }}"><button>Zobrazit výpůjčku</button></a>
+                        <a href="{{ url_for('moje_rezervace') }}">Zobrazit výpůjčku</a>
                     {% elif zarizeni.akce == "rezervovat" %}
-                        <a href="{{ url_for('zarizeni', id_zarizeni=zarizeni.id) }}"><button>Přejít na rezervaci</button></a>
+                        <a href="{{ url_for('zarizeni', id_zarizeni=zarizeni.id) }}">Přejít na rezervaci</a>
                     {% else %}
                         Není k dispozici
                     {% endif %}
