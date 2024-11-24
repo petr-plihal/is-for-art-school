@@ -4,23 +4,47 @@ body{
     font-size: small;
 }
 
+/* Navigační panel */
+/* Zdroj: https://www.w3schools.com/css/tryit.asp?filename=trycss_navbar_horizontal_black_right */
+.navbar ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #333;
+}
+.navbar li {
+    float: left;
+}
+.navbar li a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+.navbar li a:hover:not(.active) {
+    background-color: #111;
+}
+.active {
+    background-color: #008dce;
+}
+
+/* Flash zprávy */
 .flash-messages {
     margin: 20px 0;
 }
-
 .alert {
     padding: 15px;
     margin-bottom: 20px;
     border: 1px solid transparent;
     border-radius: 4px;
 }
-
 .alert-success {
     color: #3c763d;
     background-color: #dff0d8;
     border-color: #d6e9c6;
 }
-
 .alert-danger {
     color: #a94442;
     background-color: #f2dede;

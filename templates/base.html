@@ -20,12 +20,12 @@
 </head>
 <body>
 
-    <nav>
+    <nav class="navbar">
         <ul>
             <li><a href="{{ url_for('index') }}">Domů</a></li>
             {% if current_user.is_authenticated %}
-                <li><a href="{{url_for('logout')}}">Logout</a></li>
-                <li><a href="{{url_for('profile')}}">Profil</a></li>
+                <li style="float:right"><a class="active" href="{{url_for('profile')}}">Profil</a></li>
+                <li style="float:right"><a href="{{url_for('logout')}}">Logout</a></li>
                 <li><a href="{{url_for('vyhledat_zarizeni')}}">Hledat zařízení</a></li>
                 <li><a href="{{url_for('moje_rezervace')}}">Moje rezervace</a></li>
 
@@ -46,8 +46,8 @@
                 {% endif %}
       
             {% else %}
-                <li><a href="{{url_for('register')}}">Register</a></li>
-                <li><a href="{{url_for('login')}}">Login</a></li>
+                <li style="float:right"><a href="{{url_for('register')}}">Register</a></li>
+                <li style="float:right"><a href="{{url_for('login')}}">Login</a></li>
             {% endif %}
 
             {% block navbar %}{% endblock %}
