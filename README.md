@@ -1,42 +1,34 @@
 # IIS_projekt
 IIS Projekt - Umělecká škola
 
-# Prvni spusteni
-### Stazeni a spusteni virtual env
-- `pip3 install virtualenv`
-- `virtualenv env`
-- `source env/bin/activate`
+# Instalace a spuštění
+## Předpoklady
+- Python 3.6+
+- MySQL server
 
-### Pridani balicku do virtualenv
-[`pip3 install flask flask-sqlalchemy pymysql flask-bcrypt flask-login cryptography`]: #
-`pip install -r requirements.txt`
+## Instalace
+1. Stáhněte si repozitář
+2. Vytvořtě databázi a uživatele s právy k databázi v MySQL serveru 
+(přihlašovací údaje do databáze je potřeba zadat do souboru `app.py` `app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://<username>:<password>@<host>/<database>'`, v případě lokální databáze)
+3. Vytvořte virtuální prostředí
+    - `pip3 install virtualenv`
+    - `virtualenv env`
+    - `source env/bin/activate`
+4. Nainstalujte závislosti
+    - `pip3 install flask flask-sqlalchemy pymysql flask-bcrypt flask-login cryptography`
+    - nebo
+    - `pip install -r requirements.txt`
+5. Spusťte aplikaci
+    - `python3 app.py`
+    - nebo
+    - `flask run`
+Aplikace je pak dostupná přes localhost na portu 5000
 
-### Samotne spusteni aplikace
-`python3 app.py`
-nebo
-`flask run`
-
-### Aplikace je pak dostupna pres localhost na portu 5000
-`localhost:5000`
-
-#### Pouzivani databaze
-Pri pouzivani googlecloud databaze by to melo bezet bez problemu, ale pokud budete chtit pouzivat lokalni mySQL server, je potreba:
-- stahnout mySQL
-- vytvorit databazi
-- vytvorit uzivatele a predat mu prava
-
-
-#### Ukazkový uživatelé
-##### Loginy
+## Ukazkoví uživatelé
+### Loginy
 - Admin: admin
 - Správci: spravce1
 - Učitele: vyucuj1, vyucuj2
 - Uživatele: user1, user2, user3
-##### Heslo pro všechny
+### Heslo pro všechny
 - aaa
-
-#### Export závislostí
-`pip3 freeze > requirements.txt`
-
-#### Import závislostí
-`pip3 install -r requirements.txt`
