@@ -7,7 +7,7 @@
                 <th>Datum od</th>
                 <th>Datum do</th>
                 <th>Ateliér</th>
-                <th>Vyučující</th>
+                <th>Vlastník</th>
                 {% block extra_zahlavi %}{% endblock %}
             </tr>
         </thead>
@@ -19,7 +19,7 @@
                 <td>{{ vypujcka.datum_od.strftime('%Y-%m-%d') }}</td>
                 <td>{{ vypujcka.datum_do.strftime('%Y-%m-%d') }}</td>
                 <td>{{ vypujcka.zarizeni.atelier.nazev }}</td>
-                <td>{{ vypujcka.zarizeni.vyucujici.login }}</td>
+                <td><a href="{{ url_for('profil', id_uzivatele=vypujcka.zarizeni.vyucujici.id)}}">{{ vypujcka.zarizeni.vyucujici.jmeno }}</a></td>
                 {% block extra_sloupce %}{% endblock %}
             </tr>
             {% endfor %}
