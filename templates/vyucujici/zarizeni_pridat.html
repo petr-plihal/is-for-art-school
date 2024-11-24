@@ -14,6 +14,7 @@
     <form method="POST" action="/zarizeni_sprava/zarizeni_pridat">
         <label for="name">Název:</label>
         <input type="text" id="name" name="name" maxlength="100"><br>
+        <label for="atelier">Ateliér:</label>
         <select name="atelier" id="typ">
             {% for atelier in atelier %}
                 <option value="{{atelier.id}}">{{atelier.nazev}}</option>
