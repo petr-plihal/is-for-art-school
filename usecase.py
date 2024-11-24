@@ -7,11 +7,53 @@
 #                                     24.11.2024
 #           -----------------  -----------------
 
-from model import db, Uzivatel, Typ, Atelier, zarizeni_uzivatel
+
+from datetime import datetime
+from model import db, Uzivatel, Rezervace, Zarizeni, Typ, Atelier, zarizeni_uzivatel
 from sqlalchemy import or_
 
+# Pro hashování hesel
+from werkzeug.security import check_password_hash
+
+#           ---------- Neregistrovaný uživatel ----------
+
+# Funkce pro přidání zaregistrovaného uživatele do databáze s rolí obyčejného uživatele
+def zaregistrovat_se(login, heslo):
+    pridani_uzivatele(login=login, heslo=heslo)
 
 
+#           ----------------- Vyučující -----------------
+
+#   --- Správa zařízení ---
+# Funkce pro přidání nového zařízení
+def pridat_zarizeni(nazev, id_typ, id_atelier):
+    nove_zarizeni = Zarizeni(
+        nazev=nazev,
+        id_typ=id_typ,
+        id_atelier=id_atelier
+    )
+    db.session.add(nove_zarizeni)
+    db.session.commit()
+
+# Funkce pro odstranění zařízení
+def odstraneni_zarizeni(id_zarizeni):
+    zarizeni = Zarizeni.query.get(id_zarizeni)
+    if zarizeni:
+        db.session.delete(zarizeni)
+        db.session.commit()
+
+# Funkce pro aktualizaci existujícího zařízení
+def aktualizace_zarizeni(id_zarizeni, novy_nazev=None, novy_typ=None, novy_atelier=None):
+    zarizeni = Zarizeni.query.get(id_zarizeni)
+    if zarizeni:
+        if novy_nazev:
+            zarizeni.nazev = novy_nazev
+        if novy_typ:
+            zarizeni.id_typ = novy_typ
+        if novy_atelier:
+            zarizeni.id_atelier = novy_atelier
+        db.session.commit()
+# ------
 
 # ---- Správa seznamů skupin vypůjčení ateliéru ----
 
@@ -66,6 +108,38 @@ def povyseni_na_vyucujici(id_uzivatele):
         uzivatel.role = "vyucujici"
         db.session.commit()
 
+#           ------------------- Admin -------------------
+
+# ---- Správa uživatelů ----
+# Přidání nového uživatele
+def pridani_uzivatele(login, heslo, role="uzivatel"):
+    novy_uzivatel = Uzivatel(login=login, heslo=heslo, role=role)
+    db.session.add(novy_uzivatel)
+    db.session.commit()
+
+# Aktualizace uživatelských údajů
+def uprava_uzivatele(id_uzivatele, novy_login=None, nove_heslo=None, nova_role=None):
+    uzivatel = Uzivatel.query.get(id_uzivatele)
+    if uzivatel:
+        if novy_login:
+            uzivatel.login = novy_login
+        if nove_heslo:
+            uzivatel.heslo = nove_heslo
+        if nova_role:
+            uzivatel.role = nova_role
+        db.session.commit()
+
+# Odstranění uživatele
+def odstraneni_uzivatele(id_uzivatele):
+    uzivatel = Uzivatel.query.get(id_uzivatele)
+    if uzivatel:
+        db.session.delete(uzivatel)
+        db.session.commit()
+
+# Získání seznamu všech uživatelů
+def seznam_uzivatelu():
+    return Uzivatel.query.all()
+# --------
 
 # ----- Správa ateliérů -----
 # Přidání nového ateliéru
